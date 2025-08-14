@@ -184,6 +184,8 @@
       <h2>Quick actions</h2>
       <div class="btns">
         <button class="primary" id="btnReset">Reset to defaults</button>
+        <button id="btnEmail">Email this quote</button>
+        <button id="btnCopy">Copy summary</button>
         <button id="btnSave">Save preset (local)</button>
         <button id="btnLoad">Load preset</button>
         <button class="good" id="btnShare">Share link</button>
@@ -381,6 +383,55 @@
     setState(backup);
   }
   qids.forEach(id=>qel[id].addEventListener("input", quickQuote));
+
+
+  // --- Share helpers ---
+  function buildSummary(state) {
+    // ensure compute is up to date
+    const pack = parseInt(state.pack||'0',10);
+    const w = state.w, h = state.h;
+    const price = document.getElementById("outItem").textContent;
+    const ship  = document.getElementById("outShip").textContent;
+    const profit= document.getElementById("outProfit").textContent;
+    const margin= document.getElementById("outMargin").textContent;
+    const per   = document.getElementById("outPerSticker").textContent;
+    const lines = [
+      "PickleBean Pricing Quote",
+      "------------------------",
+      `Pack size: ${pack}`,
+      `Sticker size: ${w} × ${h} in`,
+      `Item price: ${price}`,
+      `Shipping to charge: ${ship}`,
+      `Estimated profit (order): ${profit}`,
+      `Profit margin (item): ${margin}`,
+      `Profit per sticker: ${per}`,
+      "",
+      "Calculator link (with current settings):",
+      (function(){ const p=new URLSearchParams(); Object.entries(state).forEach(([k,v])=>{ if(String(v).length) p.set(k,v); }); return location.href.split('?')[0]+'?'+p.toString(); })()
+    ];
+    return lines.join("\n");
+  }
+
+  function emailQuote() {
+    const summary = buildSummary(getState());
+    const subject = encodeURIComponent("PickleBean Pricing Quote");
+    const body    = encodeURIComponent(summary);
+    const href = `mailto:?subject=${subject}&body=${body}`;
+    window.location.href = href;
+  }
+  function copySummary() {
+    const summary = buildSummary(getState());
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(summary).then(()=>alert("Summary copied to clipboard."))
+        .catch(()=>fallbackCopy(summary));
+    } else {
+      fallbackCopy(summary);
+    }
+  }
+  function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert("Summary copied to clipboard."); }
+
+  document.getElementById("btnEmail").addEventListener("click", ()=>{ compute(); emailQuote(); });
+  document.getElementById("btnCopy").addEventListener("click",  ()=>{ compute(); copySummary(); });
 
   // Initialise
   const qs=queryToState();
