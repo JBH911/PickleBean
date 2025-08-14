@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>PickleBean Press — Etsy Pricing Calculator</title>
+  <title>PickleBean — Pricing Toolkit</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./icon-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,100 +11,72 @@
   <meta name="theme-color" content="#8a63d2">
   <style>
     :root {
-      --bg: #0f1217;
-      --panel: #161b22;
-      --accent: #8a63d2;
-      --muted: #9aa4b2;
-      --ok: #1f6feb;
-      --warn: #f2cc60;
-      --good: #2ea043;
-      --bad: #f85149;
-      --input: #fff2cc;
-      --calc: #e2efda;
-      --text: #e6edf3;
-      --border: rgba(255,255,255,0.06);
+      --bg: #0f1217; --panel: #161b22; --accent: #8a63d2; --muted: #9aa4b2;
+      --ok: #1f6feb; --warn: #f2cc60; --good: #2ea043; --bad: #f85149;
+      --text: #e6edf3; --border: rgba(255,255,255,0.08);
     }
     .light {
-      --bg: #f7f9fc;
-      --panel: #ffffff;
-      --accent: #7a52ff;
-      --muted: #5c6b7a;
-      --ok: #2962ff;
-      --warn: #e8b024;
-      --good: #2e7d32;
-      --bad: #d32f2f;
-      --input: #fff7d6;
-      --calc: #e8f5e9;
-      --text: #0f141a;
-      --border: rgba(0,0,0,0.08);
+      --bg:#f7f9fc; --panel:#ffffff; --accent:#7a52ff; --muted:#5c6b7a;
+      --ok:#2962ff; --warn:#e8b024; --good:#2e7d32; --bad:#d32f2f;
+      --text:#0f141a; --border: rgba(0,0,0,0.08);
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui, sans-serif; line-height: 1.35; }
-    header { position: sticky; top: 0; z-index: 3; background: linear-gradient(180deg, rgba(22,27,34,0.95), rgba(22,27,34,0.88) 70%, rgba(22,27,34,0)); backdrop-filter: saturate(1.2) blur(6px);
-      padding: 12px 16px; border-bottom: 1px solid var(--border); }
-    .light header { background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.88) 70%, rgba(255,255,255,0)); }
-    header h1 { margin: 0; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-    header .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-    .tabs { display: flex; gap: 8px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
-    .tab { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); cursor: pointer; font-weight: 700; }
-    .tab.active { background: var(--accent); color: white; border-color: transparent; }
-    main { padding: 16px; display: grid; grid-template-columns: 1fr; gap: 14px; max-width: 980px; margin: 0 auto; }
-    .row { display: grid; gap: 14px; }
-    @media (min-width: 820px) { .row { grid-template-columns: 1fr 1fr; } }
-    section.card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
-    section.card h2 { margin: 0 0 10px 0; font-size: 16px; color: inherit; display: flex; align-items: center; justify-content: space-between; }
-    section.card h2 .mini { font-size: 12px; color: var(--muted); font-weight: 500; }
-    .grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
-    .grid .full { grid-column: 1 / -1; }
-    label { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; color: inherit; }
-    input[type="number"], select { width: 140px; padding: 10px 10px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: inherit; text-align: right; font-size: 16px; }
-    input[type="checkbox"] { transform: scale(1.2); }
-    .help { color: var(--muted); font-size: 12px; margin-top: 4px; }
-    .btns { display: flex; flex-wrap: wrap; gap: 10px; }
-    button, .btn { appearance: none; -webkit-appearance: none; border: 1px solid var(--border); border-radius: 10px; background: transparent; color: inherit; padding: 10px 14px; font-size: 15px; font-weight: 600; }
-    button.primary { background: var(--ok); border-color: transparent; color: white; }
-    button.good { background: var(--good); border-color: transparent; color: white; }
-    button.warn { background: var(--warn); color: #111; border-color: transparent; }
-    .money { background: transparent; border: 1px solid var(--border); padding: 12px; border-radius: 10px; }
-    .money h3 { margin: 0 0 6px 0; font-size: 14px; color: var(--muted); }
-    .money .big { font-size: 28px; font-weight: 800; }
-    .money .sub { font-size: 13px; color: var(--muted); }
-    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-weight: 700; font-size: 12px; }
-    .pill.good { background: #162d1a; color: #57d26a; }
-    .pill.bad { background: #2d1616; color: #ff8b8b; }
-    .pill.neutral { background: #1c2330; color: #9db5ff; }
-    .divider { height: 1px; background: var(--border); margin: 8px 0; }
-    footer { color: var(--muted); font-size: 12px; padding: 20px 16px 40px; text-align: center; }
-    .small { font-size: 12px; color: var(--muted); }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .hidden { display: none; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,system-ui,sans-serif}
+    header{position:sticky;top:0;z-index:3;background:linear-gradient(180deg,rgba(22,27,34,.95),rgba(22,27,34,.88) 70%,rgba(22,27,34,0));padding:12px 16px;border-bottom:1px solid var(--border)}
+    .light header{background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.88) 70%,rgba(255,255,255,0))}
+    header h1{margin:0;font-size:18px;font-weight:800;display:flex;gap:10px;align-items:center}
+    header .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .tabs{display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+    .tab{padding:8px 12px;border-radius:999px;border:1px solid var(--border);cursor:pointer;font-weight:700}
+    .tab.active{background:var(--accent);color:#fff;border-color:transparent}
+    main{padding:16px;display:grid;gap:14px;max-width:980px;margin:0 auto}
+    .row{display:grid;gap:14px}
+    @media(min-width:820px){.row{grid-template-columns:1fr 1fr}}
+    section.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+    section.card h2{margin:0 0 10px 0;font-size:16px;display:flex;align-items:center;justify-content:space-between}
+    .grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+    .grid .full{grid-column:1/-1}
+    label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px}
+    input[type=number],input[type=text],select{width:160px;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:inherit;text-align:right;font-size:16px}
+    .help{color:var(--muted);font-size:12px}
+    .btns{display:flex;flex-wrap:wrap;gap:10px}
+    button{appearance:none;border:1px solid var(--border);border-radius:10px;background:transparent;color:inherit;padding:10px 14px;font-size:15px;font-weight:600}
+    button.primary{background:var(--ok);color:#fff;border-color:transparent}
+    button.good{background:var(--good);color:#fff;border-color:transparent}
+    button.warn{background:var(--warn);color:#111;border-color:transparent}
+    .money{border:1px solid var(--border);border-radius:10px;padding:12px}
+    .money h3{margin:0 0 6px 0;font-size:14px;color:var(--muted)}
+    .money .big{font-size:28px;font-weight:800}
+    .divider{height:1px;background:var(--border);margin:8px 0}
+    .hidden{display:none}
+    footer{color:var(--muted);font-size:12px;padding:20px 16px 40px;text-align:center}
   </style>
 </head>
 <body>
   <header>
-    <h1>PickleBean Pricing</h1>
-    <div class="right">
-      <button id="themeToggle" class="btn">Toggle theme</button>
-    </div>
+    <h1>PickleBean — Pricing Toolkit</h1>
+    <div class="right"><button id="themeToggle">Toggle theme</button></div>
   </header>
 
   <div class="tabs">
-    <div class="tab active" data-tab="calc">Calculator</div>
+    <div class="tab active" data-tab="stickers">Stickers</div>
+    <div class="tab" data-tab="engrave">Engraving</div>
+    <div class="tab" data-tab="apparel">Apparel (HTV)</div>
+    <div class="tab" data-tab="apply">Application Service</div>
     <div class="tab" data-tab="quick">Quick Quote</div>
   </div>
 
-  <main id="calcTab">
+  <!-- Stickers (existing calculator) -->
+  <main id="stickersTab">
     <section class="card">
-      <h2>Order / Product <span class="mini">Yellow = inputs</span></h2>
+      <h2>Order / Product</h2>
       <div class="grid">
         <label>Pack size<input type="number" id="pack" step="1" min="1" value="2"></label>
         <div></div>
         <label>Sticker width (in)<input type="number" id="w" step="0.1" min="0" value="6"></label>
         <label>Sticker height (in)<input type="number" id="h" step="0.1" min="0" value="2"></label>
-        <label>Item price you plan to charge (£)<input type="number" id="itemPrice" step="0.01" min="0" placeholder="leave blank for suggestion"></label>
+        <label>Item price (£, optional)<input type="number" id="itemPrice" step="0.01" min="0" placeholder="leave blank for suggestion"></label>
         <label>Desired margin (if price blank)<input type="number" id="margin" step="0.01" min="0" max="0.99" value="0.5"></label>
-        <div class="help full">Leave item price blank to get a suggested price based on your target margin.</div>
       </div>
     </section>
 
@@ -129,6 +101,7 @@
           <label>Envelopes per pack<input type="number" id="envPerPack" step="1" min="1" value="50"></label>
           <label>Stamp/postage per order (£)<input type="number" id="postage" step="0.01" min="0" value="0.87"></label>
           <label>Insert/backing card per order (£)<input type="number" id="insert" step="0.01" min="0" value="0.00"></label>
+          <label class="full">Packaging per order (£)<input type="number" id="packaging_stickers" step="0.01" min="0" value="0.00"></label>
           <label class="full">Shipping you charge (£)<input type="number" id="shipCharge" step="0.01" min="0" placeholder="auto = shipping cost"></label>
           <div class="help full">Leave shipping blank to charge your exact shipping cost.</div>
         </div>
@@ -153,27 +126,12 @@
         <h2>Results</h2>
         <div class="grid">
           <div class="money full">
-            <h3>Item price to charge</h3>
-            <div class="big" id="outItem">£0.00</div>
-            <div class="sub">Suggested if left blank.</div>
+            <h3>Item price to charge</h3><div class="big" id="outItem">£0.00</div>
           </div>
-          <div class="money">
-            <h3>Shipping to charge</h3>
-            <div class="big" id="outShip">£0.00</div>
-          </div>
-          <div class="money">
-            <h3>Estimated profit / order</h3>
-            <div class="big" id="outProfit">£0.00</div>
-            <div class="sub" id="outBadge"></div>
-          </div>
-          <div class="money">
-            <h3>Profit margin (item)</h3>
-            <div class="big" id="outMargin">—</div>
-          </div>
-          <div class="money">
-            <h3>Profit per sticker</h3>
-            <div class="big" id="outPerSticker">£0.00</div>
-          </div>
+          <div class="money"><h3>Shipping to charge</h3><div class="big" id="outShip">£0.00</div></div>
+          <div class="money"><h3>Estimated profit / order</h3><div class="big" id="outProfit">£0.00</div></div>
+          <div class="money"><h3>Profit margin (item)</h3><div class="big" id="outMargin">—</div></div>
+          <div class="money"><h3>Profit per sticker</h3><div class="big" id="outPerSticker">£0.00</div></div>
         </div>
         <div class="divider"></div>
         <div class="small mono" id="debug"></div>
@@ -184,96 +142,211 @@
       <h2>Quick actions</h2>
       <div class="btns">
         <button class="primary" id="btnReset">Reset to defaults</button>
-        <button id="btnEmail">Email this quote</button>
-        <button id="btnCopy">Copy summary</button>
         <button id="btnSave">Save preset (local)</button>
         <button id="btnLoad">Load preset</button>
         <button class="good" id="btnShare">Share link</button>
+        <button id="btnEmail">Email this quote</button>
+        <button id="btnCopy">Copy summary</button>
         <button class="warn" id="btnExport">Export JSON</button>
-        <input type="file" id="fileImport" accept=".json" style="display:none;">
+        <input type="file" id="fileImport" accept=".json" style="display:none">
         <button id="btnImport">Import JSON</button>
       </div>
-      <div class="help">“Share link” works best if this file is hosted (e.g., GitHub Pages, Netlify). Otherwise use Export/Import JSON.</div>
-    </section>
-
-    <section class="card">
-      <h2>Preset</h2>
-      <div class="btns">
-        <button id="btnPresetIG">Instagram Tag Stickers — 2 pack</button>
-      </div>
-      <div class="help">Applies your usual 6×2in sticker, 2-pack, current costs & fees.</div>
     </section>
   </main>
 
-  <!-- Quick Quote Tab -->
+  <!-- Engraving tab -->
+  <main id="engraveTab" class="hidden">
+    <section class="card">
+      <h2>Material & Sheet</h2>
+      <div class="grid">
+        <label class="full">Material preset
+          <select id="eg_preset">
+            <option value="custom">Custom</option>
+            <option value="acrylic_3mm_600x400_8">Acrylic 3mm (600×400mm) — £8.00</option>
+            <option value="al_1_5mm_300x300_12">Aluminium 1.5mm (300×300mm) — £12.00</option>
+            <option value="ss_1mm_300x300_18">Stainless 1.0mm (300×300mm) — £18.00</option>
+            <option value="brass_1mm_300x300_20">Brass 1.0mm (300×300mm) — £20.00</option>
+          </select>
+        </label>
+        <label>Sheet width (mm) <input type="number" id="eg_sheet_w" step="1" min="1" value="300"></label>
+        <label>Sheet height (mm) <input type="number" id="eg_sheet_h" step="1" min="1" value="300"></label>
+        <label>Sheet cost (£) <input type="number" id="eg_sheet_cost" step="0.01" min="0" value="12"></label>
+        <label>Waste allowance (%) <input type="number" id="eg_waste" step="0.01" min="0" max="0.9" value="0.10"></label>
+        <label class="full">Packaging per order (£) <input type="number" id="eg_packaging" step="0.01" min="0" value="0.00"></label>
+      </div>
+      <div class="help">Choose a preset to auto-fill sheet size and cost, or keep Custom and set your own.</div>
+    </section>
+
+    <section class="card">
+      <h2>Piece & Production</h2>
+      <div class="grid">
+        <label>Piece width (mm) <input type="number" id="eg_piece_w" step="1" min="1" value="50"></label>
+        <label>Piece height (mm) <input type="number" id="eg_piece_h" step="1" min="1" value="20"></label>
+        <label>Quantity <input type="number" id="eg_qty" step="1" min="1" value="10"></label>
+        <label>Engraving time per piece (mins) <input type="number" id="eg_time_per" step="1" min="0" value="2"></label>
+        <label>Setup time per job (mins) <input type="number" id="eg_setup" step="1" min="0" value="10"></label>
+        <label>Finishing cost per piece (£) <input type="number" id="eg_finish_per" step="0.01" min="0" value="0.20"></label>
+        <label>Overhead per job (£) <input type="number" id="eg_overhead" step="0.01" min="0" value="0.50"></label>
+        <label>Labour rate (£/hr) <input type="number" id="eg_labour_rate" step="0.1" min="0" value="15"></label>
+        <label>Target margin (if price blank) <input type="number" id="eg_margin" step="0.01" min="0" max="0.99" value="0.5"></label>
+        <label class="full">Price per piece (optional) <input type="number" id="eg_price_per" step="0.01" min="0" placeholder="leave blank for suggestion"></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Results</h2>
+      <div class="grid">
+        <div class="money"><h3>Material cost / piece</h3><div class="big" id="eg_out_mat_per">£0.00</div></div>
+        <div class="money"><h3>Labour cost / piece</h3><div class="big" id="eg_out_lab_per">£0.00</div></div>
+        <div class="money"><h3>Cost / piece (before markup)</h3><div class="big" id="eg_out_cost_per">£0.00</div></div>
+        <div class="money"><h3>Suggested price / piece</h3><div class="big" id="eg_out_price_per">£0.00</div></div>
+        <div class="money"><h3>Total price (all pieces)</h3><div class="big" id="eg_out_total">£0.00</div></div>
+        <div class="money"><h3>Profit / piece</h3><div class="big" id="eg_out_profit_per">£0.00</div></div>
+        <div class="money"><h3>Margin</h3><div class="big" id="eg_out_margin">—</div></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Apparel (HTV) tab -->
+  <main id="apparelTab" class="hidden">
+    <section class="card">
+      <h2>Garment & HTV</h2>
+      <div class="grid">
+        <label>Garment cost (£) <input type="number" id="ap_garment_cost" step="0.01" min="0" value="3.50"></label>
+        <label>Quantity <input type="number" id="ap_qty" step="1" min="1" value="10"></label>
+        <label>HTV sheet size (cm) W <input type="number" id="ap_htv_w" step="0.1" min="0" value="30"></label>
+        <label>HTV sheet size (cm) H <input type="number" id="ap_htv_h" step="0.1" min="0" value="30"></label>
+        <label>HTV sheet cost (£) <input type="number" id="ap_htv_cost" step="0.01" min="0" value="2.40"></label>
+        <label>Design area (cm²) <input type="number" id="ap_design_area" step="1" min="0" value="100"></label>
+        <label>Waste allowance (%) <input type="number" id="ap_waste" step="0.01" min="0" max="0.9" value="0.10"></label>
+        <label>Packaging per order (£) <input type="number" id="ap_packaging" step="0.01" min="0" value="0.00"></label>
+      </div>
+      <div class="help">If a design uses multiple colours/layers, increase design area or account for extra time below.</div>
+    </section>
+
+    <section class="card">
+      <h2>Production</h2>
+      <div class="grid">
+        <label>Weeding & prep per piece (mins) <input type="number" id="ap_prep_mins" step="1" min="0" value="3"></label>
+        <label>Press time per piece (mins) <input type="number" id="ap_press_mins" step="1" min="0" value="1"></label>
+        <label>Setup per job (mins) <input type="number" id="ap_setup_mins" step="1" min="0" value="10"></label>
+        <label>Labour rate (£/hr) <input type="number" id="ap_labour_rate" step="0.1" min="0" value="15"></label>
+        <label>Target margin (if price blank) <input type="number" id="ap_margin" step="0.01" min="0" max="0.99" value="0.5"></label>
+        <label class="full">Price per piece (optional) <input type="number" id="ap_price_per" step="0.01" min="0" placeholder="leave blank for suggestion"></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Results</h2>
+      <div class="grid">
+        <div class="money"><h3>Materials / piece</h3><div class="big" id="ap_out_mat_per">£0.00</div></div>
+        <div class="money"><h3>Labour / piece</h3><div class="big" id="ap_out_lab_per">£0.00</div></div>
+        <div class="money"><h3>Cost / piece (pre-markup)</h3><div class="big" id="ap_out_cost_per">£0.00</div></div>
+        <div class="money"><h3>Suggested price / piece</h3><div class="big" id="ap_out_price_per">£0.00</div></div>
+        <div class="money"><h3>Total price</h3><div class="big" id="ap_out_total">£0.00</div></div>
+        <div class="money"><h3>Profit / piece</h3><div class="big" id="ap_out_profit_per">£0.00</div></div>
+        <div class="money"><h3>Margin</h3><div class="big" id="ap_out_margin">—</div></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Application Service tab (applying vinyl stickers to items) -->
+  <main id="applyTab" class="hidden">
+    <section class="card">
+      <h2>Service Inputs</h2>
+      <div class="grid">
+        <label>Items (qty) <input type="number" id="sv_qty" step="1" min="1" value="10"></label>
+        <label>Sticker cost per item (£) <input type="number" id="sv_sticker_cost" step="0.01" min="0" value="0.50"></label>
+        <label>Surface prep per item (£) <input type="number" id="sv_prep_cost" step="0.01" min="0" value="0.10"></label>
+        <label>Application time per item (mins) <input type="number" id="sv_time_per" step="1" min="0" value="2"></label>
+        <label>Setup time per job (mins) <input type="number" id="sv_setup" step="1" min="0" value="10"></label>
+        <label>Labour rate (£/hr) <input type="number" id="sv_labour_rate" step="0.1" min="0" value="15"></label>
+        <label>Overhead per job (£) <input type="number" id="sv_overhead" step="0.01" min="0" value="0.50"></label>
+        <label>Packaging per order (£) <input type="number" id="sv_packaging" step="0.01" min="0" value="0.00"></label>
+        <label>Target margin (if price blank) <input type="number" id="sv_margin" step="0.01" min="0" max="0.99" value="0.5"></label>
+        <label class="full">Price per item (optional) <input type="number" id="sv_price_per" step="0.01" min="0" placeholder="leave blank for suggestion"></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Results</h2>
+      <div class="grid">
+        <div class="money"><h3>Cost / item (pre-markup)</h3><div class="big" id="sv_out_cost_per">£0.00</div></div>
+        <div class="money"><h3>Suggested price / item</h3><div class="big" id="sv_out_price_per">£0.00</div></div>
+        <div class="money"><h3>Total price</h3><div class="big" id="sv_out_total">£0.00</div></div>
+        <div class="money"><h3>Profit / item</h3><div class="big" id="sv_out_profit_per">£0.00</div></div>
+        <div class="money"><h3>Margin</h3><div class="big" id="sv_out_margin">—</div></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Quick Quote (unchanged layout, with Share button) -->
   <main id="quickTab" class="hidden">
     <section class="card">
       <h2>Quick Quote</h2>
       <div class="grid">
         <label>Pack size<input type="number" id="qq_pack" step="1" min="1" value="2"></label>
-        <label>Sticker size (W × H, in) <input type="number" id="qq_w" step="0.1" min="0" value="6"></label>
-        <label></label><input type="number" id="qq_h" step="0.1" min="0" value="2">
-        <label>Item price (£) — optional<input type="number" id="qq_itemPrice" step="0.01" min="0" placeholder="leave blank"></label>
+        <label>Sticker size W (in) <input type="number" id="qq_w" step="0.1" min="0" value="6"></label>
+        <label>Sticker size H (in) <input type="number" id="qq_h" step="0.1" min="0" value="2"></label>
+        <label>Item price (£, optional)<input type="number" id="qq_itemPrice" step="0.01" min="0" placeholder="leave blank"></label>
         <label>Target margin (if price blank)<input type="number" id="qq_margin" step="0.01" min="0" max="0.99" value="0.5"></label>
         <label>Shipping you’ll charge (£, optional)<input type="number" id="qq_ship" step="0.01" min="0" placeholder="auto = cost"></label>
-        <div class="help full">Uses your existing defaults for materials, fees, labour, and postage. Change them on the Calculator tab.</div>
+        <div class="help full">Uses defaults from the Stickers tab for materials, fees, labour, and postage.</div>
       </div>
     </section>
     <section class="card">
       <h2>Result</h2>
       <div class="grid">
-        <div class="money full">
-          <h3>Item price</h3>
-          <div class="big" id="qq_outItem">£0.00</div>
-        </div>
-        <div class="money">
-          <h3>Shipping to charge</h3>
-          <div class="big" id="qq_outShip">£0.00</div>
-        </div>
-        <div class="money">
-          <h3>Profit / order</h3>
-          <div class="big" id="qq_outProfit">£0.00</div>
-        </div>
-        <div class="money">
-          <h3>Profit per sticker</h3>
-          <div class="big" id="qq_outPerSticker">£0.00</div>
-        </div>
+        <div class="money full"><h3>Item price</h3><div class="big" id="qq_outItem">£0.00</div></div>
+        <div class="money"><h3>Shipping to charge</h3><div class="big" id="qq_outShip">£0.00</div></div>
+        <div class="money"><h3>Profit / order</h3><div class="big" id="qq_outProfit">£0.00</div></div>
+        <div class="money"><h3>Profit per sticker</h3><div class="big" id="qq_outPerSticker">£0.00</div></div>
       </div>
+    </section>
+    <section class="card">
+      <h2>Share</h2>
+      <div class="btns">
+        <button id="btnQQShare">Share customer quote</button>
+      </div>
+      <div class="help">Opens Mail with a friendly message and the final price (falls back to copy).</div>
     </section>
   </main>
 
-  <footer>Made for Jamie & Sam — PickleBean Press ✨</footer>
+  <footer>Made for Jamie & Sam — PickleBean ✨</footer>
 
 <script>
 (function(){
-  // Theme toggle with persistence
-  const THEME_KEY = "pb_theme";
+  // Theme toggle
+  const THEME_KEY="pb_theme";
   const preferLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-  let theme = localStorage.getItem(THEME_KEY) || (preferLight ? "light" : "dark");
-  if (theme === "light") document.documentElement.classList.add("light");
-  document.getElementById("themeToggle").addEventListener("click", () => {
+  let theme = localStorage.getItem(THEME_KEY) || (preferLight ? "light":"dark");
+  if (theme==="light") document.documentElement.classList.add("light");
+  document.getElementById("themeToggle").addEventListener("click",()=>{
     document.documentElement.classList.toggle("light");
-    theme = document.documentElement.classList.contains("light") ? "light" : "dark";
-    localStorage.setItem(THEME_KEY, theme);
+    localStorage.setItem(THEME_KEY, document.documentElement.classList.contains("light")?"light":"dark");
   });
 
   // Tabs
   const tabs = document.querySelectorAll(".tab");
-  const calcTab = document.getElementById("calcTab");
-  const quickTab = document.getElementById("quickTab");
-  tabs.forEach(t => t.addEventListener("click", () => {
-    tabs.forEach(x => x.classList.remove("active"));
-    t.classList.add("active");
-    const name = t.dataset.tab;
-    if (name === "calc") { calcTab.classList.remove("hidden"); quickTab.classList.add("hidden"); }
-    else { quickTab.classList.remove("hidden"); calcTab.classList.add("hidden"); }
+  const tabMap = {
+    stickers: document.getElementById("stickersTab"),
+    engrave: document.getElementById("engraveTab"),
+    apparel: document.getElementById("apparelTab"),
+    apply: document.getElementById("applyTab"),
+    quick: document.getElementById("quickTab"),
+  };
+  tabs.forEach(t=>t.addEventListener("click",()=>{
+    tabs.forEach(x=>x.classList.remove("active")); t.classList.add("active");
+    Object.values(tabMap).forEach(el=>el.classList.add("hidden"));
+    tabMap[t.dataset.tab].classList.remove("hidden");
   }));
 
-  // Reuse calculator logic
-  const gbp = (n) => isFinite(n) ? new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(n) : "£0.00";
-  const ids = ["pack","w","h","itemPrice","margin","vinylW","vinylL","vinylC","tapeW","tapeL","tapeC","waste","envPackC","envPerPack","postage","insert","shipCharge","etsyPct","procPct","procFixed","listFee","overhead","labourRate","labourMins"];
-  const el = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
+  // Money helpers
+  const gbp=(n)=>isFinite(n)?new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(n):"£0.00";
 
+  // ---------------- Stickers logic (same as before, plus packaging_stickers) ----------------
+  const ids=["pack","w","h","itemPrice","margin","vinylW","vinylL","vinylC","tapeW","tapeL","tapeC","waste","envPackC","envPerPack","postage","insert","packaging_stickers","shipCharge","etsyPct","procPct","procFixed","listFee","overhead","labourRate","labourMins"];
+  const el=Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
   function read(id){ const v=parseFloat(el[id].value); return isNaN(v)?0:v; }
   function compute(){
     const pack=Math.max(1,Math.floor(read("pack")));
@@ -286,6 +359,7 @@
     const waste=Math.min(0.95,Math.max(0,read("waste")));
     const envPackC=Math.max(0,read("envPackC")), envPerPack=Math.max(1,Math.floor(read("envPerPack")));
     const postage=Math.max(0,read("postage")), insert=Math.max(0,read("insert"));
+    const packagingOrder = Math.max(0, read("packaging_stickers"));
     const shipRaw=el.shipCharge.value.trim();
     const shipInput=shipRaw===""?NaN:Math.max(0,read("shipCharge"));
     const etsyPct=Math.max(0,read("etsyPct"));
@@ -301,17 +375,19 @@
     const tapeArea=tapeW*tapeL;
     const usableVinyl=vinylArea*(1-waste);
     const usableTape=tapeArea*(1-waste);
-    const stickersPerVinyl=stickerArea>0?Math.floor(usableVinyl/stickerArea):0;
-    const stickersPerTape=stickerArea>0?Math.floor(usableTape/stickerArea):0;
-    const costVinylPerSticker=stickersPerVinyl>0?(vinylC/stickersPerVinyl):0;
-    const costTapePerSticker=stickersPerTape>0?(tapeC/stickersPerTape):0;
-    const materialsPerSticker=costVinylPerSticker+costTapePerSticker;
+    const spv=stickerArea>0?Math.floor(usableVinyl/stickerArea):0;
+    const spt=stickerArea>0?Math.floor(usableTape/stickerArea):0;
+    const cvps=spv>0?(vinylC/spv):0;
+    const ctps=spt>0?(tapeC/spt):0;
+
+    const materialsPerSticker=cvps+ctps;
     const materialsPerOrder=materialsPerSticker*pack;
     const envPerOrder=envPackC/envPerPack;
     const shippingCost=envPerOrder+postage+insert;
     const labourCost=labourRate*(labourMins/60);
-    const itemCost=materialsPerOrder+listFee+overhead+labourCost;
+    const itemCost=materialsPerOrder+listFee+overhead+labourCost + packagingOrder; // include packaging in item cost
     const itemPrice=isNaN(itemPriceInput)?((1-margin)>0?(itemCost/(1-margin)):0):itemPriceInput;
+
     const etsyFee=itemPrice*etsyPct;
     const procFeePct=itemPrice*procPct;
     const feesTotal=etsyFee+procFeePct+procFixed;
@@ -327,117 +403,201 @@
     document.getElementById("outMargin").textContent=isNaN(itemMargin)?"—":(itemMargin*100).toFixed(1)+"%";
     document.getElementById("outPerSticker").textContent=gbp(profitPerSticker);
 
-    const badge=document.getElementById("outBadge");
-    badge.innerHTML = totalProfit>0?'<span class="pill good">Profit</span>':(totalProfit<0?'<span class="pill bad">Loss</span>':'<span class="pill neutral">Break-even</span>');
-
-    // For quick quote defaults
-    return {pack,w,h,itemPrice,margin,shippingCost,shipCharge,totalProfit,profitPerSticker};
+    // Debug
+    document.getElementById("debug").textContent = `Env/order ${gbp(envPerOrder)} • Ship cost ${gbp(shippingCost)} • Labour ${gbp(labourCost)} • Materials/order ${gbp(materialsPerOrder)} • Packaging/order ${gbp(packagingOrder)}`;
   }
+  ids.forEach(id=>el[id].addEventListener("input",compute));
 
-  // Events
-  ids.forEach(id=>el[id].addEventListener("input", compute));
-
-  // Defaults and presets
-  const defaultState=()=>({pack:2,w:6,h:2,itemPrice:"",margin:0.5,vinylW:12,vinylL:120,vinylC:10.99,tapeW:12,tapeL:120,tapeC:6.50,waste:0.10,envPackC:2.99,envPerPack:50,postage:0.87,insert:0.00,shipCharge:"",etsyPct:0.065,procPct:0.04,procFixed:0.20,listFee:0.20,overhead:0.10,labourRate:12,labourMins:8});
-  function setState(s){ Object.keys(s).forEach(k=>{ const e=document.getElementById(k); if(e) e.value=s[k]; }); compute(); }
-  function getState(){ const s={}; ids.forEach(id=>s[id]=document.getElementById(id).value); return s; }
-
-  document.getElementById("btnReset").addEventListener("click",()=>setState(defaultState()));
-  document.getElementById("btnPresetIG").addEventListener("click",()=>{ const s=defaultState(); s.pack=2;s.w=6;s.h=2;s.itemPrice="";s.margin=0.5; setState(s); });
-
-  // Save/load/share
+  // Save/load/share/copy/email (same as earlier)
   const KEY="picklebean_pricing_preset";
+  document.getElementById("btnReset").addEventListener("click",()=>{ setState(defaultState()); });
   document.getElementById("btnSave").addEventListener("click",()=>{ localStorage.setItem(KEY, JSON.stringify(getState())); alert("Preset saved on this device."); });
   document.getElementById("btnLoad").addEventListener("click",()=>{ const raw=localStorage.getItem(KEY); if(!raw) return alert("No preset saved yet."); try{ setState(JSON.parse(raw)); }catch(e){ alert("Couldn't load preset."); }});
   function stateToQuery(s){ const p=new URLSearchParams(); for(const[k,v] of Object.entries(s)) if(String(v).length) p.set(k,v); return p.toString(); }
-  function queryToState(){ const q=new URLSearchParams(location.search); const s=defaultState(); let changed=false; for(const k of Object.keys(s)){ if(q.has(k)){ s[k]=q.get(k); changed=true;} } return changed?s:null; }
   document.getElementById("btnShare").addEventListener("click", async()=>{ const url=location.href.split("?")[0]+"?"+stateToQuery(getState()); try{ await navigator.clipboard.writeText(url); alert("Link copied to clipboard."); } catch(e){ prompt("Copy link:", url); } });
+  function buildSummary(state){ const lines=[
+      "PickleBean Pricing Quote","------------------------",
+      `Pack size: ${state.pack}`,`Sticker size: ${state.w} × ${state.h} in`,
+      `Item price: ${document.getElementById("outItem").textContent}`,
+      `Shipping to charge: ${document.getElementById("outShip").textContent}`,
+      `Estimated profit (order): ${document.getElementById("outProfit").textContent}`,
+      `Profit margin (item): ${document.getElementById("outMargin").textContent}`,
+      `Profit per sticker: ${document.getElementById("outPerSticker").textContent}`]; return lines.join("\n"); }
+  function emailQuote(){ const subject=encodeURIComponent("PickleBean Pricing Quote"); const body=encodeURIComponent(buildSummary(getState())); location.href=`mailto:?subject=${subject}&body=${body}`; }
+  function copySummary(){ const t=buildSummary(getState()); if(navigator.clipboard?.writeText){navigator.clipboard.writeText(t).then(()=>alert("Summary copied to clipboard."));}else{const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); alert("Summary copied to clipboard.");}}
+  document.getElementById("btnEmail").addEventListener("click",()=>{ compute(); emailQuote(); });
+  document.getElementById("btnCopy").addEventListener("click",()=>{ compute(); copySummary(); });
   document.getElementById("btnExport").addEventListener("click",()=>{ const blob=new Blob([JSON.stringify(getState(),null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="picklebean_pricing_preset.json"; a.click(); URL.revokeObjectURL(a.href); });
   document.getElementById("btnImport").addEventListener("click",()=>document.getElementById("fileImport").click());
   document.getElementById("fileImport").addEventListener("change",(e)=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ setState(JSON.parse(r.result)); }catch(e){ alert("Couldn't parse JSON."); } }; r.readAsText(f); });
 
-  // Quick Quote hookup (uses the same compute + defaults)
-  const qids = ["qq_pack","qq_w","qq_h","qq_itemPrice","qq_margin","qq_ship"];
-  const qel = Object.fromEntries(qids.map(id=>[id, document.getElementById(id)]));
-  function qq_read(id){ const v=parseFloat(qel[id].value); return isNaN(v)?0:v; }
-  function quickQuote(){
-    // Temporarily apply QQ values to calculator, compute, then restore
-    const backup = getState();
-    const s = defaultState();
-    s.pack = Math.max(1, Math.floor(qq_read("qq_pack")));
-    s.w = Math.max(0, parseFloat(qel.qq_w.value)||0);
-    s.h = Math.max(0, parseFloat(qel.qq_h.value)||0);
-    const priceStr = qel.qq_itemPrice.value.trim();
-    s.itemPrice = priceStr === "" ? "" : Math.max(0, parseFloat(priceStr)||0);
-    s.margin = Math.min(0.99, Math.max(0, parseFloat(qel.qq_margin.value)||0.5));
-    const shipStr = qel.qq_ship.value.trim();
-    s.shipCharge = shipStr === "" ? "" : Math.max(0, parseFloat(shipStr)||0);
-    setState(s);
-    const res = compute();
-    // Outputs (reuse DOM updated in compute)
-    document.getElementById("qq_outItem").textContent = document.getElementById("outItem").textContent;
-    document.getElementById("qq_outShip").textContent = document.getElementById("outShip").textContent;
-    document.getElementById("qq_outProfit").textContent = document.getElementById("outProfit").textContent;
-    document.getElementById("qq_outPerSticker").textContent = document.getElementById("outPerSticker").textContent;
-    // Restore original calc state
-    setState(backup);
-  }
-  qids.forEach(id=>qel[id].addEventListener("input", quickQuote));
+  // Defaults & state
+  const defaultState=()=>({pack:2,w:6,h:2,itemPrice:"",margin:0.5,vinylW:12,vinylL:120,vinylC:10.99,tapeW:12,tapeL:120,tapeC:6.50,waste:0.10,envPackC:2.99,envPerPack:50,postage:0.87,insert:0.00,packaging_stickers:0.00,shipCharge:"",etsyPct:0.065,procPct:0.04,procFixed:0.20,listFee:0.20,overhead:0.10,labourRate:12,labourMins:8});
+  function setState(s){ Object.keys(s).forEach(k=>{ const e=document.getElementById(k); if(e!=null) e.value=s[k]; }); compute(); eg_compute(); ap_compute(); sv_compute(); }
+  function getState(){ const s={}; ids.forEach(id=>s[id]=document.getElementById(id).value); return s; }
 
-
-  // --- Share helpers ---
-  function buildSummary(state) {
-    // ensure compute is up to date
-    const pack = parseInt(state.pack||'0',10);
-    const w = state.w, h = state.h;
-    const price = document.getElementById("outItem").textContent;
-    const ship  = document.getElementById("outShip").textContent;
-    const profit= document.getElementById("outProfit").textContent;
-    const margin= document.getElementById("outMargin").textContent;
-    const per   = document.getElementById("outPerSticker").textContent;
-    const lines = [
-      "PickleBean Pricing Quote",
-      "------------------------",
-      `Pack size: ${pack}`,
-      `Sticker size: ${w} × ${h} in`,
-      `Item price: ${price}`,
-      `Shipping to charge: ${ship}`,
-      `Estimated profit (order): ${profit}`,
-      `Profit margin (item): ${margin}`,
-      `Profit per sticker: ${per}`,
-      "",
-      "Calculator link (with current settings):",
-      (function(){ const p=new URLSearchParams(); Object.entries(state).forEach(([k,v])=>{ if(String(v).length) p.set(k,v); }); return location.href.split('?')[0]+'?'+p.toString(); })()
-    ];
-    return lines.join("\n");
-  }
-
-  function emailQuote() {
-    const summary = buildSummary(getState());
-    const subject = encodeURIComponent("PickleBean Pricing Quote");
-    const body    = encodeURIComponent(summary);
-    const href = `mailto:?subject=${subject}&body=${body}`;
-    window.location.href = href;
-  }
-  function copySummary() {
-    const summary = buildSummary(getState());
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(summary).then(()=>alert("Summary copied to clipboard."))
-        .catch(()=>fallbackCopy(summary));
-    } else {
-      fallbackCopy(summary);
+  // ---------- Engraving logic ----------
+  const egIds=["eg_preset","eg_sheet_w","eg_sheet_h","eg_sheet_cost","eg_waste","eg_piece_w","eg_piece_h","eg_qty","eg_time_per","eg_setup","eg_finish_per","eg_overhead","eg_labour_rate","eg_margin","eg_price_per","eg_packaging"];
+  function eg_read(id){ const el=document.getElementById(id); const v=parseFloat(el.value); return isNaN(v)?0:v; }
+  function eg_applyPreset(){
+    const v=document.getElementById("eg_preset").value;
+    const map={
+      acrylic_3mm_600x400_8:{w:600,h:400,c:8},
+      al_1_5mm_300x300_12:{w:300,h:300,c:12},
+      ss_1mm_300x300_18:{w:300,h:300,c:18},
+      brass_1mm_300x300_20:{w:300,h:300,c:20}
+    };
+    if(v!=="custom" && map[v]){
+      document.getElementById("eg_sheet_w").value=map[v].w;
+      document.getElementById("eg_sheet_h").value=map[v].h;
+      document.getElementById("eg_sheet_cost").value=map[v].c;
     }
+    eg_compute();
   }
-  function fallbackCopy(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert("Summary copied to clipboard."); }
+  document.getElementById("eg_preset").addEventListener("change",eg_applyPreset);
+  function eg_compute(){
+    const sheetW=eg_read("eg_sheet_w"), sheetH=eg_read("eg_sheet_h"), sheetC=eg_read("eg_sheet_cost");
+    const waste=Math.min(0.95, Math.max(0, eg_read("eg_waste")));
+    const pW=eg_read("eg_piece_w"), pH=eg_read("eg_piece_h");
+    const qty=Math.max(1, Math.floor(eg_read("eg_qty")));
+    const tPer=eg_read("eg_time_per"), setup=eg_read("eg_setup");
+    const finishPer=eg_read("eg_finish_per"), overhead=eg_read("eg_overhead");
+    const labourRate=eg_read("eg_labour_rate"), margin=Math.min(0.99, Math.max(0, eg_read("eg_margin")));
+    const pricePerRaw=document.getElementById("eg_price_per").value.trim();
+    const pricePerInput=pricePerRaw===""?NaN:Math.max(0, parseFloat(pricePerRaw)||0);
+    const packaging=eg_read("eg_packaging");
 
-  document.getElementById("btnEmail").addEventListener("click", ()=>{ compute(); emailQuote(); });
-  document.getElementById("btnCopy").addEventListener("click",  ()=>{ compute(); copySummary(); });
+    const sheetArea=sheetW*sheetH, usable=sheetArea*(1-waste), pieceArea=Math.max(1,pW*pH);
+    const piecesPerSheet=Math.floor(usable/pieceArea);
+    const matPerPiece=piecesPerSheet>0?(sheetC/piecesPerSheet):0;
 
-  // Initialise
-  const qs=queryToState();
-  setState(qs||defaultState());
-  quickQuote();
-})();
-</script>
+    const labourPerPiece=labourRate*((setup/qty + tPer)/60);
+    const costPerPiece=matPerPiece + labourPerPiece + finishPer + (overhead/qty) + (packaging/qty);
+    const pricePer=isNaN(pricePerInput)?((1-margin)>0?(costPerPiece/(1-margin)):costPerPiece):pricePerInput;
+    const total=pricePer*qty;
+    const profitPer=pricePer - costPerPiece;
+    const m = pricePer>0 ? (profitPer/pricePer) : NaN;
+
+    document.getElementById("eg_out_mat_per").textContent=gbp(matPerPiece);
+    document.getElementById("eg_out_lab_per").textContent=gbp(labourPerPiece);
+    document.getElementById("eg_out_cost_per").textContent=gbp(costPerPiece);
+    document.getElementById("eg_out_price_per").textContent=gbp(pricePer);
+    document.getElementById("eg_out_total").textContent=gbp(total);
+    document.getElementById("eg_out_profit_per").textContent=gbp(profitPer);
+    document.getElementById("eg_out_margin").textContent=isNaN(m)?"—":(m*100).toFixed(1)+"%";
+  }
+  egIds.forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener("input", eg_compute); });
+
+  // ---------- Apparel (HTV) logic ----------
+  const apIds=["ap_garment_cost","ap_qty","ap_htv_w","ap_htv_h","ap_htv_cost","ap_design_area","ap_waste","ap_packaging","ap_prep_mins","ap_press_mins","ap_setup_mins","ap_labour_rate","ap_margin","ap_price_per"];
+  function ap_read(id){ const el=document.getElementById(id); const v=parseFloat(el.value); return isNaN(v)?0:v; }
+  function ap_compute(){
+    const qty=Math.max(1, Math.floor(ap_read("ap_qty")));
+    const garment=ap_read("ap_garment_cost");
+    const htvW=ap_read("ap_htv_w"), htvH=ap_read("ap_htv_h"), htvC=ap_read("ap_htv_cost");
+    const designArea=ap_read("ap_design_area");
+    const waste=Math.min(0.95, Math.max(0, ap_read("ap_waste")));
+    const packaging=ap_read("ap_packaging");
+    const prep=ap_read("ap_prep_mins"), press=ap_read("ap_press_mins"), setup=ap_read("ap_setup_mins");
+    const labour=ap_read("ap_labour_rate");
+    const margin=Math.min(0.99, Math.max(0, ap_read("ap_margin")));
+    const priceRaw=document.getElementById("ap_price_per").value.trim();
+    const priceInput=priceRaw===""?NaN:Math.max(0, parseFloat(priceRaw)||0);
+
+    // HTV materials: sheet cm^2 cost, design cm^2 used with waste
+    const sheetArea=htvW*htvH;
+    const usable=sheetArea*(1-waste);
+    const htvPerPiece = (usable>0 && designArea>0) ? (htvC * (designArea / usable)) : 0;
+    const labourPerPiece = labour * ((setup/qty + prep + press)/60);
+    const materialsPerPiece = garment + htvPerPiece;
+    const costPerPiece = materialsPerPiece + labourPerPiece + (packaging/qty);
+    const pricePer = isNaN(priceInput)? ((1-margin)>0?(costPerPiece/(1-margin)):costPerPiece) : priceInput;
+    const total = pricePer * qty;
+    const profitPer = pricePer - costPerPiece;
+    const m = pricePer>0 ? (profitPer/pricePer) : NaN;
+
+    document.getElementById("ap_out_mat_per").textContent=gbp(materialsPerPiece);
+    document.getElementById("ap_out_lab_per").textContent=gbp(labourPerPiece);
+    document.getElementById("ap_out_cost_per").textContent=gbp(costPerPiece);
+    document.getElementById("ap_out_price_per").textContent=gbp(pricePer);
+    document.getElementById("ap_out_total").textContent=gbp(total);
+    document.getElementById("ap_out_profit_per").textContent=gbp(profitPer);
+    document.getElementById("ap_out_margin").textContent=isNaN(m)?"—":(m*100).toFixed(1)+"%";
+  }
+  apIds.forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener("input", ap_compute); });
+
+  // ---------- Application Service logic ----------
+  const svIds=["sv_qty","sv_sticker_cost","sv_prep_cost","sv_time_per","sv_setup","sv_labour_rate","sv_overhead","sv_packaging","sv_margin","sv_price_per"];
+  function sv_read(id){ const el=document.getElementById(id); const v=parseFloat(el.value); return isNaN(v)?0:v; }
+  function sv_compute(){
+    const qty=Math.max(1, Math.floor(sv_read("sv_qty")));
+    const sticker=sv_read("sv_sticker_cost");
+    const prepCost=sv_read("sv_prep_cost");
+    const tPer=sv_read("sv_time_per");
+    const setup=sv_read("sv_setup");
+    const labour=sv_read("sv_labour_rate");
+    const overhead=sv_read("sv_overhead");
+    const packaging=sv_read("sv_packaging");
+    const margin=Math.min(0.99, Math.max(0, sv_read("sv_margin")));
+    const priceRaw=document.getElementById("sv_price_per").value.trim();
+    const priceInput=priceRaw===""?NaN:Math.max(0, parseFloat(priceRaw)||0);
+
+    const labourPerItem = labour * ((setup/qty + tPer)/60);
+    const costPerItem = sticker + prepCost + labourPerItem + (overhead/qty) + (packaging/qty);
+    const pricePer = isNaN(priceInput)? ((1-margin)>0?(costPerItem/(1-margin)):costPerItem) : priceInput;
+    const total = pricePer * qty;
+    const profitPer = pricePer - costPerItem;
+    const m = pricePer>0 ? (profitPer/pricePer) : NaN;
+
+    document.getElementById("sv_out_cost_per").textContent=gbp(costPerItem);
+    document.getElementById("sv_out_price_per").textContent=gbp(pricePer);
+    document.getElementById("sv_out_total").textContent=gbp(total);
+    document.getElementById("sv_out_profit_per").textContent=gbp(profitPer);
+    document.getElementById("sv_out_margin").textContent=isNaN(m)?"—":(m*100).toFixed(1)+"%";
+  }
+  svIds.forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener("input", sv_compute); });
+
+  // ---------- Quick Quote share ----------
+  function qq_buildCustomerMessage(){
+    const item = document.getElementById("qq_outItem").textContent;
+    const ship = document.getElementById("qq_outShip").textContent;
+    const total = (()=>{
+      const p = parseFloat(item.replace(/[£,]/g,"")||"0") + parseFloat(ship.replace(/[£,]/g,"")||"0");
+      return gbp(p);
+    })();
+    const qty = document.getElementById("qq_pack").value || "2";
+    const size = `${document.getElementById("qq_w").value || "?"}×${document.getElementById("qq_h").value || "?"} in`;
+    const lines=[
+      "Hey! 👋 Here’s your PickleBean quote:",
+      `• Pack: ${qty} at ${size}`,
+      `• Item price: ${item}`,
+      `• Shipping: ${ship}`,
+      `• Total: ${total}`,
+      "",
+      "If you’re happy, we’ll get this made right away ✨"
+    ];
+    return lines.join("\\n");
+  }
+  document.getElementById("btnQQShare").addEventListener("click", async()=>{
+    const message = qq_buildCustomerMessage();
+    const subject = encodeURIComponent("Your PickleBean quote");
+    const body = encodeURIComponent(message);
+    const href = `mailto:?subject=${subject}&body=${body}`;
+    try { location.href = href; }
+    catch(e){
+      if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(message); alert("Quote copied to clipboard."); }
+      else { const ta=document.createElement('textarea'); ta.value=message; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); alert("Quote copied to clipboard."); }
+    }
+  });
+
+  // Init
+  function initDefaults(){
+    setState(defaultState());
+    eg_applyPreset();
+  }
+  initDefaults();
+  compute(); eg_compute(); ap_compute(); sv_compute();
+
+})();</script>
 </body>
 </html>
