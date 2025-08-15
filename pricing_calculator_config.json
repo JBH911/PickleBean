@@ -1,0 +1,140 @@
+{
+  "meta": {
+    "project": "Pricing Calculator",
+    "last_updated": "2025-08-15",
+    "currency": "GBP"
+  },
+  "platform_fees": {
+    "etsy": {
+      "transaction_fee_rate": 0.065,
+      "notes": "User specifically requested 6.5% transaction fee only. Listing/payment fees not included."
+    }
+  },
+  "materials": {
+    "vinyl": {
+      "roll_price": 10.99,
+      "roll_width_in": 12.0,
+      "roll_length_in": 120.0,
+      "roll_area_sq_in": 1440.0,
+      "cost_per_sq_in": 0.0076,
+      "notes": "Cricut Maker 4 cutting; no printing cost considered."
+    },
+    "transfer_tape": {
+      "roll_price": 6.5,
+      "dimensions": null,
+      "cost_per_sq_in": null,
+      "per_pack_allocation_override": null,
+      "notes": "Price known (\u00a36.50/roll) but dimensions not provided. Set cost_per_sq_in or per_pack_allocation_override when known."
+    }
+  },
+  "packaging_postage": {
+    "envelope": {
+      "pack_price": 2.99,
+      "qty_per_pack": 50,
+      "unit_cost": 0.0598
+    },
+    "stamp": {
+      "unit_price": 0.87,
+      "class": "2nd"
+    }
+  },
+  "products": {
+    "instagram_tag_stickers_pack_of_2": {
+      "stickers_per_pack": 2,
+      "sticker_size_in": {
+        "width": 6.0,
+        "height": 2.0
+      },
+      "sticker_area_sq_in": 12.0,
+      "total_vinyl_area_sq_in": 24.0,
+      "vinyl_material_cost": 0.18,
+      "transfer_tape_cost": null,
+      "labor": {
+        "labor_rate_per_hour": null,
+        "minutes_per_pack": null,
+        "labor_cost_override": null
+      },
+      "packaging_cost": 0.0598,
+      "postage_cost": 0.87,
+      "waste_margin_pct": 0.0,
+      "overhead_pct": 0.0,
+      "target_profit_pct_on_cost": null,
+      "rounding": {
+        "strategy": "nearest_0.10",
+        "step": 0.1
+      }
+    }
+  },
+  "ui_ux": {
+    "theme": {
+      "brand_name": "PickleBean Press",
+      "notes": "Match the colouring of the logo",
+      "palette": {
+        "primary": "purple",
+        "secondary": "black",
+        "accent": "white"
+      }
+    },
+    "tabs": [
+      {
+        "name": "Home",
+        "type": "splash",
+        "icon_click_routes_here": true
+      },
+      {
+        "name": "Stickers",
+        "actions": [
+          "Quick Quote",
+          "Full Quote",
+          "Save",
+          "Export"
+        ],
+        "section_separation": "clear/distinct"
+      },
+      {
+        "name": "Quick Quote",
+        "customer_fields": [
+          "Customer Name",
+          "Email",
+          "Phone",
+          "Company (optional)",
+          "Notes to Customer"
+        ],
+        "more_in_depth": true
+      },
+      {
+        "name": "Materials"
+      },
+      {
+        "name": "Postage"
+      },
+      {
+        "name": "Settings"
+      }
+    ],
+    "global_actions": [
+      "Quick Quote",
+      "Full Quote",
+      "Save",
+      "Export"
+    ],
+    "notes": "All tabs share the same action buttons at the bottom, as per Stickers tab."
+  },
+  "formulas": {
+    "vinyl_cost": "vinyl.cost_per_sq_in * total_vinyl_area_sq_in * (1 + waste_margin_pct)",
+    "transfer_tape_cost": "if cost_per_sq_in known: cost_per_sq_in * total_vinyl_area_sq_in; else use per_pack_allocation_override",
+    "labor_cost": "(labor_rate_per_hour/60) * minutes_per_pack, unless labor_cost_override provided",
+    "packaging_cost": "envelope.unit_cost",
+    "postage_cost": "stamp.unit_price",
+    "cost_before_fees": "vinyl_cost + transfer_tape_cost + labor_cost + packaging_cost + postage_cost (if shipping included)",
+    "item_price_before_fees": "vinyl_cost + transfer_tape_cost + labor_cost + packaging_cost + overhead",
+    "etsy_transaction_fee": "item_price_before_fees * 0.065",
+    "final_customer_price": "round_to_step(item_price_before_fees + etsy_transaction_fee, step=0.10)",
+    "shipping_price_to_customer": "postage_cost (and packaging if charging separately)"
+  },
+  "examples": {
+    "vinyl_cost_for_pack_of_2": 0.18,
+    "packaging_cost_each_envelope": 0.0598,
+    "postage_cost_2nd_class": 0.87
+  }
+}
