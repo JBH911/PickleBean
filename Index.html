@@ -1,43 +1,139 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pricing Calculator</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PickleBean Press — Pricing Calculator</title>
+<style>
+:root{
+  --bg:#0f0f12; --panel:#15161a; --panel-2:#1c1e24;
+  --text:#e9e9ef; --muted:#a1a7b1;
+  --brand:#7a5cff; --accent:#b084ff;
+  --ok:#30d158; --warn:#ff9f0a; --err:#ff453a;
+  --r:14px; --shadow:0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+header{position:sticky;top:0;background:linear-gradient(180deg,#111218,#0f0f1200);border-bottom:1px solid #1f2230;backdrop-filter:blur(6px);padding:14px 18px;z-index:2}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:var(--shadow)}
+h1{margin:0;font-size:18px}
+.sub{margin:2px 0 0;color:var(--muted);font-size:13px}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+nav.tabs button{padding:10px 14px;border-radius:10px;background:var(--panel);border:1px solid #242632;color:var(--text);cursor:pointer}
+nav.tabs button.active{outline:2px solid var(--brand)}
+main{max-width:1100px;margin:24px auto;padding:0 18px;min-height:60vh}
+.panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid #222636;border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+.grid{display:grid;gap:14px}
+.grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:900px){.grid.cols-3{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:8px}
+label{font-size:13px;color:var(--muted)}
+input,select,textarea{background:#0c0d11;border:1px solid #272b39;color:var(--text);border-radius:12px;padding:12px}
+button{border:0;border-radius:12px;padding:12px 16px;cursor:pointer;background:var(--panel);color:var(--text);box-shadow:var(--shadow)}
+button.primary{background:linear-gradient(135deg,var(--brand),var(--accent));color:#fff}
+button.ghost{background:#0c0d11;border:1px solid #272b39}
+.kpi{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.kpi .chip{background:#0c0d11;border:1px solid #272b39;border-radius:999px;padding:8px 12px;font-size:13px;color:var(--muted)}
+.price-lg{font-size:40px;font-weight:800;margin:0}
+footer{border-top:1px solid #1f2230;padding:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.hidden{display:none}
+hr{border:0;border-top:1px solid #272b39;margin:16px 0}
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">PB</div>
-      <div class="titles">
-        <h1>Pricing Calculator</h1>
-        <p class="subtitle">Framework — add products later</p>
-      </div>
+<header>
+  <div class="brand">
+    <div class="logo" aria-hidden="true">PB</div>
+    <div>
+      <h1>Pricing Calculator</h1>
+      <p class="sub">Single-file version — easy GitHub Pages upload</p>
     </div>
-    <nav class="tabs" role="tablist" aria-label="Calculator sections">
-      <a href="#/" role="tab" data-route="/">Home</a>
-      <a href="#/stickers" role="tab" data-route="stickers">Stickers</a>
-      <a href="#/apparel" role="tab" data-route="apparel">Apparel</a>
-      <a href="#/engraving" role="tab" data-route="engraving">Engraving</a>
-      <a href="#/homeware" role="tab" data-route="homeware">Homeware</a>
-      <a href="#/books" role="tab" data-route="books">Books</a>
-      <a href="#/settings" role="tab" data-route="settings" class="right">Settings</a>
-      <a href="#/quick-quote" role="tab" data-route="quick-quote" class="right">Quick Quote</a>
-    </nav>
-  </header>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Calculator sections">
+    <button data-tab="home" class="active" role="tab">Home</button>
+    <button data-tab="stickers" role="tab">Stickers</button>
+    <button data-tab="apparel" role="tab">Apparel</button>
+    <button data-tab="engraving" role="tab">Engraving</button>
+    <button data-tab="homeware" role="tab">Homeware</button>
+    <button data-tab="books" role="tab">Books</button>
+    <button data-tab="settings" role="tab" style="margin-left:auto">Settings</button>
+    <button data-tab="qq" role="tab">Quick Quote</button>
+  </nav>
+</header>
 
-  <main id="app" tabindex="-1" aria-live="polite"></main>
+<main>
+  <!-- Home -->
+  <section id="tab-home" class="panel">
+    <h2>Welcome</h2>
+    <p>This mirrors the layout of the original: tabs, consistent actions, and a simple pricing core. It’s all in one file so you can upload just <strong>index.html</strong> and go.</p>
+  </section>
 
-  <footer class="site-footer">
-    <div class="footer-actions">
-      <button id="btn-copy" class="ghost">Copy Quote</button>
-      <button id="btn-reset" class="ghost">Reset</button>
-      <button id="btn-export" class="primary">Export JSON</button>
+  <!-- Category placeholders -->
+  <section id="tab-stickers" class="panel hidden"></section>
+  <section id="tab-apparel" class="panel hidden"></section>
+  <section id="tab-engraving" class="panel hidden"></section>
+  <section id="tab-homeware" class="panel hidden"></section>
+  <section id="tab-books" class="panel hidden"></section>
+
+  <!-- Settings -->
+  <section id="tab-settings" class="panel hidden">
+    <h2>Settings</h2>
+    <div class="grid cols-3" id="settings-form"></div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" id="save-settings">Save</button>
+      <button id="clear-settings">Revert to defaults</button>
     </div>
-    <small>© <span id="year"></span> PickleBean Press — Calculator Framework</small>
-  </footer>
+  </section>
 
-  <script src="assets/js/app.js" type="module"></script>
+  <!-- Quick Quote -->
+  <section id="tab-qq" class="panel hidden">
+    <h2>Quick Quote</h2>
+    <div class="grid cols-3" id="qq-form"></div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" id="qq-calc">Calculate</button>
+      <button id="qq-clear">Clear</button>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>Estimate</h3>
+      <p id="qq-total" class="price-lg">—</p>
+      <div id="qq-breakdown" class="kpi"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-actions">
+    <button id="btn-copy" class="ghost">Copy Quote</button>
+    <button id="btn-reset" class="ghost">Reset</button>
+    <button id="btn-export" class="primary">Export JSON</button>
+  </div>
+  <small>© <span id="year"></span> PickleBean Press</small>
+</footer>
+
+<script>
+/* simplified script */
+const $=(s,r=document)=>r.querySelector(s);
+const money=(n,c='GBP')=>new Intl.NumberFormat('en-GB',{style:'currency',currency:c}).format(n);
+const store=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const load=(k)=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
+const defaults={platform_pct:6.5,payment_fixed:0.20,postage_flat:0.87,margin_pct:50,currency:'GBP'};
+let cfg=Object.assign({},defaults,load('pb_settings')||{});
+const Calc={lines:[],reset(){this.lines=[]},add(l,q,u){this.lines.push({label:l,qty:q,unit:u,cost:q*u})},subtotal(){return this.lines.reduce((a,b)=>a+b.cost,0)}};
+function total(){const s=Calc.subtotal();const f=s*(cfg.platform_pct/100)+cfg.payment_fixed;const p=cfg.postage_flat;const m=s*(cfg.margin_pct/100);return{subtotal:s,fees:f,postage:p,margin:m,grand:s+f+p+m};}
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');Object.values(panels).forEach(p=>p.classList.add('hidden'));panels[b.dataset.tab].classList.remove('hidden');location.hash=b.dataset.tab});
+const panels={home:$('#tab-home'),stickers:$('#tab-stickers'),apparel:$('#tab-apparel'),engraving:$('#tab-engraving'),homeware:$('#tab-homeware'),books:$('#tab-books'),settings:$('#tab-settings'),qq:$('#tab-qq')};
+$('#year').textContent=new Date().getFullYear();
+/* Settings form */
+const sf=$('#settings-form');[['Platform Fee %','platform_pct',cfg.platform_pct],['Payment Fee','payment_fixed',cfg.payment_fixed],['Postage','postage_flat',cfg.postage_flat],['Margin %','margin_pct',cfg.margin_pct],['Currency','currency',cfg.currency]].forEach(([l,k,v])=>{const d=document.createElement('div');d.className='field';d.innerHTML=`<label>${l}</label><input value="${v}">`;d.querySelector('input').dataset.key=k;sf.append(d)});$('#save-settings').onclick=()=>{const o={};sf.querySelectorAll('input').forEach(i=>o[i.dataset.key]=isNaN(i.value)?i.value:Number(i.value));store('pb_settings',o);alert('Saved!');location.reload()};$('#clear-settings').onclick=()=>{localStorage.removeItem('pb_settings');location.reload()};
+/* Quick quote */
+const qf=$('#qq-form');[['Qty','number',2],['Unit Material','number',0.35],['Unit Labour','number',0.2]].forEach(([l,t,v])=>{const d=document.createElement('div');d.className='field';d.innerHTML=`<label>${l}</label><input type="${t}" value="${v}">`;qf.append(d)});$('#qq-calc').onclick=()=>{Calc.reset();const vals=[...qf.querySelectorAll('input')].map(i=>+i.value);Calc.add('Materials',vals[0],vals[1]);Calc.add('Labour',vals[0],vals[2]);const t=total();$('#qq-total').textContent=money(t.grand);$('#qq-breakdown').innerHTML=`<div class="chip">Subtotal: ${money(t.subtotal)}</div><div class="chip">Fees: ${money(t.fees)}</div><div class="chip">Postage: ${money(t.postage)}</div><div class="chip">Margin: ${money(t.margin)}</div>`};
+$('#qq-clear').onclick=()=>{$('#qq-total').textContent='—';$('#qq-breakdown').innerHTML='';qf.querySelectorAll('input').forEach(i=>i.value='')};
+/* Footer actions */
+$('#btn-copy').onclick=()=>navigator.clipboard.writeText(JSON.stringify(cfg));$('#btn-reset').onclick=()=>{localStorage.clear();location.reload()};$('#btn-export').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(cfg)],{type:'application/json'}));a.download='calc.json';a.click()};
+</script>
 </body>
 </html>
