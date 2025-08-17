@@ -1,0 +1,12 @@
+{
+  "platform_pct": 6.5,
+  "payment_fixed": 0.2,
+  "postage_flat": 0.87,
+  "margin_pct": 50,
+  "materials": {
+    "vinyl_roll": 10.99,
+    "vinyl_width_in": 12,
+    "vinyl_length_ft": 10,
+    "transfer_roll": 6.5
+  }
+}
