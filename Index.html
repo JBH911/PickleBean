@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pricing Calculator</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">PB</div>
+      <div class="titles">
+        <h1>Pricing Calculator</h1>
+        <p class="subtitle">Framework — add products later</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Calculator sections">
+      <a href="#/" role="tab" data-route="/">Home</a>
+      <a href="#/stickers" role="tab" data-route="stickers">Stickers</a>
+      <a href="#/apparel" role="tab" data-route="apparel">Apparel</a>
+      <a href="#/engraving" role="tab" data-route="engraving">Engraving</a>
+      <a href="#/homeware" role="tab" data-route="homeware">Homeware</a>
+      <a href="#/books" role="tab" data-route="books">Books</a>
+      <a href="#/settings" role="tab" data-route="settings" class="right">Settings</a>
+      <a href="#/quick-quote" role="tab" data-route="quick-quote" class="right">Quick Quote</a>
+    </nav>
+  </header>
+
+  <main id="app" tabindex="-1" aria-live="polite"></main>
+
+  <footer class="site-footer">
+    <div class="footer-actions">
+      <button id="btn-copy" class="ghost">Copy Quote</button>
+      <button id="btn-reset" class="ghost">Reset</button>
+      <button id="btn-export" class="primary">Export JSON</button>
+    </div>
+    <small>© <span id="year"></span> PickleBean Press — Calculator Framework</small>
+  </footer>
+
+  <script src="assets/js/app.js" type="module"></script>
+</body>
+</html>
