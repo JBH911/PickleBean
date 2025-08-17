@@ -42,6 +42,7 @@ button.ghost{background:#0c0d11;border:1px solid #272b39}
 footer{border-top:1px solid #1f2230;padding:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 .hidden{display:none}
 hr{border:0;border-top:1px solid #272b39;margin:16px 0}
+small.muted{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -50,7 +51,7 @@ hr{border:0;border-top:1px solid #272b39;margin:16px 0}
     <div class="logo" aria-hidden="true">PB</div>
     <div>
       <h1>Pricing Calculator</h1>
-      <p class="sub">Single-file version — easy GitHub Pages upload</p>
+      <p class="sub">Single-file — multi-category</p>
     </div>
   </div>
   <nav class="tabs" role="tablist" aria-label="Calculator sections">
@@ -66,20 +67,17 @@ hr{border:0;border-top:1px solid #272b39;margin:16px 0}
 </header>
 
 <main>
-  <!-- Home -->
   <section id="tab-home" class="panel">
     <h2>Welcome</h2>
-    <p>This mirrors the layout of the original: tabs, consistent actions, and a simple pricing core. It’s all in one file so you can upload just <strong>index.html</strong> and go.</p>
+    <p>This single-file calculator has full tabs for all categories. Use <b>Settings</b> to adjust fees/postage/margin and <b>Quick Quote</b> for fast estimates.</p>
   </section>
 
-  <!-- Category placeholders -->
   <section id="tab-stickers" class="panel hidden"></section>
   <section id="tab-apparel" class="panel hidden"></section>
   <section id="tab-engraving" class="panel hidden"></section>
   <section id="tab-homeware" class="panel hidden"></section>
   <section id="tab-books" class="panel hidden"></section>
 
-  <!-- Settings -->
   <section id="tab-settings" class="panel hidden">
     <h2>Settings</h2>
     <div class="grid cols-3" id="settings-form"></div>
@@ -87,9 +85,9 @@ hr{border:0;border-top:1px solid #272b39;margin:16px 0}
       <button class="primary" id="save-settings">Save</button>
       <button id="clear-settings">Revert to defaults</button>
     </div>
+    <p class="small muted">Settings save locally (per device) via localStorage.</p>
   </section>
 
-  <!-- Quick Quote -->
   <section id="tab-qq" class="panel hidden">
     <h2>Quick Quote</h2>
     <div class="grid cols-3" id="qq-form"></div>
@@ -115,25 +113,333 @@ hr{border:0;border-top:1px solid #272b39;margin:16px 0}
 </footer>
 
 <script>
-/* simplified script */
+/* ---------- Core utils & config ---------- */
 const $=(s,r=document)=>r.querySelector(s);
 const money=(n,c='GBP')=>new Intl.NumberFormat('en-GB',{style:'currency',currency:c}).format(n);
 const store=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 const load=(k)=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
 const defaults={platform_pct:6.5,payment_fixed:0.20,postage_flat:0.87,margin_pct:50,currency:'GBP'};
 let cfg=Object.assign({},defaults,load('pb_settings')||{});
-const Calc={lines:[],reset(){this.lines=[]},add(l,q,u){this.lines.push({label:l,qty:q,unit:u,cost:q*u})},subtotal(){return this.lines.reduce((a,b)=>a+b.cost,0)}};
-function total(){const s=Calc.subtotal();const f=s*(cfg.platform_pct/100)+cfg.payment_fixed;const p=cfg.postage_flat;const m=s*(cfg.margin_pct/100);return{subtotal:s,fees:f,postage:p,margin:m,grand:s+f+p+m};}
+
+const Calc={
+  lines:[],
+  reset(){this.lines=[]},
+  add(label,qty,unit){this.lines.push({label,qty,unit,cost:qty*unit})},
+  subtotal(){return this.lines.reduce((a,b)=>a+b.cost,0)}
+};
+function totals(){
+  const s=Calc.subtotal();
+  const fees=s*(cfg.platform_pct/100)+cfg.payment_fixed;
+  const post=cfg.postage_flat;
+  const margin=s*(cfg.margin_pct/100);
+  return {subtotal:s,fees,postage:post,margin,grand:s+fees+post+margin};
+}
+
+/* ---------- Tabs & actions ---------- */
 document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');Object.values(panels).forEach(p=>p.classList.add('hidden'));panels[b.dataset.tab].classList.remove('hidden');location.hash=b.dataset.tab});
 const panels={home:$('#tab-home'),stickers:$('#tab-stickers'),apparel:$('#tab-apparel'),engraving:$('#tab-engraving'),homeware:$('#tab-homeware'),books:$('#tab-books'),settings:$('#tab-settings'),qq:$('#tab-qq')};
 $('#year').textContent=new Date().getFullYear();
-/* Settings form */
-const sf=$('#settings-form');[['Platform Fee %','platform_pct',cfg.platform_pct],['Payment Fee','payment_fixed',cfg.payment_fixed],['Postage','postage_flat',cfg.postage_flat],['Margin %','margin_pct',cfg.margin_pct],['Currency','currency',cfg.currency]].forEach(([l,k,v])=>{const d=document.createElement('div');d.className='field';d.innerHTML=`<label>${l}</label><input value="${v}">`;d.querySelector('input').dataset.key=k;sf.append(d)});$('#save-settings').onclick=()=>{const o={};sf.querySelectorAll('input').forEach(i=>o[i.dataset.key]=isNaN(i.value)?i.value:Number(i.value));store('pb_settings',o);alert('Saved!');location.reload()};$('#clear-settings').onclick=()=>{localStorage.removeItem('pb_settings');location.reload()};
-/* Quick quote */
-const qf=$('#qq-form');[['Qty','number',2],['Unit Material','number',0.35],['Unit Labour','number',0.2]].forEach(([l,t,v])=>{const d=document.createElement('div');d.className='field';d.innerHTML=`<label>${l}</label><input type="${t}" value="${v}">`;qf.append(d)});$('#qq-calc').onclick=()=>{Calc.reset();const vals=[...qf.querySelectorAll('input')].map(i=>+i.value);Calc.add('Materials',vals[0],vals[1]);Calc.add('Labour',vals[0],vals[2]);const t=total();$('#qq-total').textContent=money(t.grand);$('#qq-breakdown').innerHTML=`<div class="chip">Subtotal: ${money(t.subtotal)}</div><div class="chip">Fees: ${money(t.fees)}</div><div class="chip">Postage: ${money(t.postage)}</div><div class="chip">Margin: ${money(t.margin)}</div>`};
+
+$('#btn-copy').onclick=()=>navigator.clipboard.writeText(JSON.stringify({cfg,last:window.lastQuote||{}},null,2)).then(()=>alert('Copied!'));
+$('#btn-reset').onclick=()=>{localStorage.clear();location.reload()};
+$('#btn-export').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({cfg,last:window.lastQuote||{}},null,2)],{type:'application/json'}));a.download='calculator-state.json';a.click()};
+
+/* ---------- Settings ---------- */
+const sf=$('#settings-form');
+[['Platform Fee %','platform_pct',cfg.platform_pct],
+ ['Payment Fee (fixed)','payment_fixed',cfg.payment_fixed],
+ ['Default Postage (flat)','postage_flat',cfg.postage_flat],
+ ['Default Margin %','margin_pct',cfg.margin_pct],
+ ['Currency','currency',cfg.currency]
+].forEach(([label,key,val])=>{
+  const d=document.createElement('div');d.className='field';
+  if(key==='currency'){ d.innerHTML=`<label>${label}</label><select data-key="${key}"><option>GBP</option><option>USD</option><option>EUR</option></select>`; d.querySelector('select').value=val; }
+  else { d.innerHTML=`<label>${label}</label><input type="number" step="0.01" value="${val}" data-key="${key}">`; }
+  sf.append(d);
+});
+$('#save-settings').onclick=()=>{
+  const out={};
+  sf.querySelectorAll('input,select').forEach(el=>{
+    const k=el.dataset.key;
+    out[k]=el.tagName==='SELECT'?el.value:Number(el.value);
+  });
+  store('pb_settings',out); alert('Saved'); location.reload();
+};
+$('#clear-settings').onclick=()=>{localStorage.removeItem('pb_settings'); location.reload()};
+
+/* ---------- Quick Quote ---------- */
+const qf=$('#qq-form');
+(function buildQQ(){
+  const rows=[
+    ['Category','select',['Stickers','Apparel','Engraving','Homeware','Books','Other']],
+    ['Description','text','e.g., 2× Instagram tag decals, white'],
+    ['Quantity','number',2,0.01],
+    ['Unit Material Cost (£)','number',0.35,0.01],
+    ['Unit Labour Cost (£)','number',0.20,0.01],
+    ['Target Margin %','number',cfg.margin_pct,1],
+    ['Postage (flat)','number',cfg.postage_flat,0.01],
+    ['Platform Fee %','number',cfg.platform_pct,0.1],
+    ['Payment Fee (fixed)','number',cfg.payment_fixed,0.01],
+    ['Currency','select',['GBP','USD','EUR']],
+    ['Customer Name (optional)','text','e.g., Sam'],
+    ['Notes (optional)','text','Gift message, colour, deadline…'],
+  ];
+  rows.forEach(([label,type,val,step])=>{
+    const d=document.createElement('div'); d.className='field'; d.innerHTML=`<label>${label}</label>`;
+    if(type==='select'){
+      const s=document.createElement('select'); (Array.isArray(val)?val:[val]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.append(o)}); if(label==='Currency') s.value=cfg.currency; d.append(s);
+    }else if(type==='number'){
+      const i=document.createElement('input'); i.type='number'; i.step=String(step||1); i.value=val; d.append(i);
+    }else{ const i=document.createElement('input'); i.placeholder=val||''; d.append(i); }
+    qf.append(d);
+  });
+})();
+$('#qq-calc').onclick=()=>{
+  const els=qf.querySelectorAll('input,select');
+  const data={
+    category:els[0].value, description:els[1].value, qty:+els[2].value||0,
+    unitMat:+els[3].value||0, unitLab:+els[4].value||0,
+    marginPct:+els[5].value||0, postage:+els[6].value||0,
+    feePct:+els[7].value||0, feeFixed:+els[8].value||0,
+    currency:els[9].value
+  };
+  Calc.reset(); Calc.add('Materials',data.qty,data.unitMat); Calc.add('Labour',data.qty,data.unitLab);
+  const s=Calc.subtotal(); const f=s*(data.feePct/100)+data.feeFixed; const p=data.postage; const m=s*(data.marginPct/100); const g=s+f+p+m;
+  window.lastQuote={category:data.category, description:data.description, lines:Calc.lines, totals:{subtotal:s,fees:f,postage:p,margin:m,grand:g}, currency:data.currency};
+  $('#qq-total').textContent=money(g,data.currency);
+  $('#qq-breakdown').innerHTML=`<div class="chip">Subtotal: ${money(s,data.currency)}</div><div class="chip">Platform Fees: ${money(f,data.currency)}</div><div class="chip">Postage: ${money(p,data.currency)}</div><div class="chip">Margin: ${money(m,data.currency)}</div>`;
+};
 $('#qq-clear').onclick=()=>{$('#qq-total').textContent='—';$('#qq-breakdown').innerHTML='';qf.querySelectorAll('input').forEach(i=>i.value='')};
-/* Footer actions */
-$('#btn-copy').onclick=()=>navigator.clipboard.writeText(JSON.stringify(cfg));$('#btn-reset').onclick=()=>{localStorage.clear();location.reload()};$('#btn-export').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(cfg)],{type:'application/json'}));a.download='calc.json';a.click()};
+
+/* ---------- Helpers to build category UIs ---------- */
+function chip(label,val,c=cfg.currency){ const d=document.createElement('div'); d.className='chip'; d.textContent=`${label}: ${money(val,c)}`; return d; }
+function resultPanel(root,idPrefix){
+  const panel=document.createElement('div'); panel.className='panel'; panel.style.marginTop='16px';
+  panel.innerHTML=`<h3>Totals</h3><p id="${idPrefix}-total" class="price-lg">—</p><div id="${idPrefix}-bk" class="kpi"></div><hr><div id="${idPrefix}-lines" class="kpi"></div>`;
+  root.append(panel);
+  return {
+    set(t,lines,curr=cfg.currency){
+      $('#'+idPrefix+'-total').textContent=money(t.grand,curr);
+      const bk=$('#'+idPrefix+'-bk'); bk.innerHTML=''; bk.append(chip('Subtotal',t.subtotal,curr),chip('Platform Fees',t.fees,curr),chip('Postage',t.postage,curr),chip('Margin',t.margin,curr));
+      const ln=$('#'+idPrefix+'-lines'); ln.innerHTML=''; lines.forEach(L=>ln.append(chip(`${L.label} (${L.qty} × ${money(L.unit,curr)})`, L.cost, curr)));
+    },
+    clear(){ $('#'+idPrefix+'-total').textContent='—'; $('#'+idPrefix+'-bk').innerHTML=''; $('#'+idPrefix+'-lines').innerHTML=''; }
+  };
+}
+
+/* ---------- Stickers ---------- */
+(function(){
+  const root=$('#tab-stickers');
+  root.innerHTML=`
+    <h2>Stickers</h2>
+    <div class="grid cols-3" id="stk-form">
+      <div class="field"><label>Quantity</label><input id="stk-qty" type="number" min="1" value="2"></div>
+      <div class="field"><label>Sticker Width (in)</label><input id="stk-w" type="number" step="0.01" value="6"></div>
+      <div class="field"><label>Sticker Height (in)</label><input id="stk-h" type="number" step="0.01" value="2"></div>
+      <div class="field"><label>Wastage / Offcuts %</label><input id="stk-waste" type="number" step="1" value="10"></div>
+      <div class="field"><label>Labour per sticker (min)</label><input id="stk-min" type="number" step="0.1" value="1.5"></div>
+      <div class="field"><label>Labour rate (£/hr)</label><input id="stk-rate" type="number" step="0.01" value="12"></div>
+      <div class="field"><label>Vinyl roll width (in)</label><input id="vinyl-w" type="number" step="0.1" value="12"></div>
+      <div class="field"><label>Vinyl roll length (ft)</label><input id="vinyl-l" type="number" step="0.1" value="10"></div>
+      <div class="field"><label>Vinyl roll cost (£)</label><input id="vinyl-cost" type="number" step="0.01" value="10.99"></div>
+      <div class="field"><label>Transfer tape roll cost (£)</label><input id="tape-cost" type="number" step="0.01" value="6.50"></div>
+      <div class="field"><label>Apply tape (≈ sticker area)?</label><select id="tape-area"><option value="1" selected>Yes</option><option value="0">No (0)</option></select></div>
+      <div class="field"><label>Extra tape margin %</label><input id="tape-margin" type="number" step="1" value="0"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" id="stk-calc">Calculate</button>
+      <button id="stk-clear">Clear</button>
+    </div>`;
+  const out=resultPanel(root,'stk');
+
+  const id=x=>document.getElementById(x);
+  function calc(){
+    const qty=+id('stk-qty').value||0, w=+id('stk-w').value||0, h=+id('stk-h').value||0;
+    const waste=(+id('stk-waste').value||0)/100, minPer=+id('stk-min').value||0, rate=+id('stk-rate').value||0;
+    const rollW=+id('vinyl-w').value||0, rollLft=+id('vinyl-l').value||0, vCost=+id('vinyl-cost').value||0;
+    const tCost=+id('tape-cost').value||0, tFactor=+id('tape-area').value||0, tMargin=(+id('tape-margin').value||0)/100;
+
+    const stickerArea=w*h; // in^2
+    const stickerAreaWaste=stickerArea*(1+waste);
+    const rollArea=rollW*(rollLft*12); // in^2
+    const vinylPerIn2=rollArea? vCost/rollArea : 0;
+    const tapePerIn2 =rollArea? tCost /rollArea : 0;
+    const tapeAreaPer=stickerArea*tFactor*(1+tMargin);
+
+    const matPer = stickerAreaWaste*vinylPerIn2 + tapeAreaPer*tapePerIn2;
+    const labourPer=(minPer/60)*rate;
+
+    Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer);
+    const t=totals(); out.set(t,Calc.lines,cfg.currency);
+  }
+  $('#stk-calc').onclick=calc;
+  $('#stk-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
+})();
+
+/* ---------- Apparel (DTF/HTV press style) ---------- */
+(function(){
+  const root=$('#tab-apparel');
+  root.innerHTML=`
+    <h2>Apparel</h2>
+    <div class="grid cols-3" id="app-form">
+      <div class="field"><label>Quantity</label><input id="app-qty" type="number" min="1" value="10"></div>
+      <div class="field"><label>Blank garment cost (£)</label><input id="app-blank" type="number" step="0.01" value="3.50"></div>
+      <div class="field"><label>Print method</label>
+        <select id="app-method"><option>DTF</option><option>HTV</option></select>
+      </div>
+      <div class="field"><label>Transfer/print cost per item (£)</label><input id="app-transfer" type="number" step="0.01" value="1.20"></div>
+      <div class="field"><label>Press time per item (min)</label><input id="app-time" type="number" step="0.1" value="0.7"></div>
+      <div class="field"><label>Labour rate (£/hr)</label><input id="app-rate" type="number" step="0.01" value="12"></div>
+      <div class="field"><label>Setup time (min)</label><input id="app-setup" type="number" step="0.1" value="5"></div>
+      <div class="field"><label>Packaging per item (£)</label><input id="app-pack" type="number" step="0.01" value="0.15"></div>
+      <div class="field"><label>Wastage % (misprints)</label><input id="app-waste" type="number" step="1" value="3"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" id="app-calc">Calculate</button>
+      <button id="app-clear">Clear</button>
+    </div>`;
+  const out=resultPanel(root,'app');
+  const id=x=>document.getElementById(x);
+
+  function calc(){
+    const qty=+id('app-qty').value||0, blank=+id('app-blank').value||0, transfer=+id('app-transfer').value||0;
+    const time=+id('app-time').value||0, rate=+id('app-rate').value||0, setup=+id('app-setup').value||0;
+    const pack=+id('app-pack').value||0, waste=(+id('app-waste').value||0)/100;
+
+    const effectiveQty = qty*(1+waste);
+    const matPer = blank + transfer + pack;
+    const labourTotalHrs = (setup/60) + (time/60)*qty;
+    const labourPer = (labourTotalHrs*rate)/qty;
+
+    Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer); Calc.add('Wastage allowance', qty*(waste), matPer); // simple waste model
+    const t=totals(); out.set(t,Calc.lines,cfg.currency);
+  }
+  $('#app-calc').onclick=calc;
+  $('#app-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
+})();
+
+/* ---------- Engraving (laser/CNC) ---------- */
+(function(){
+  const root=$('#tab-engraving');
+  root.innerHTML=`
+    <h2>Engraving</h2>
+    <div class="grid cols-3" id="eng-form">
+      <div class="field"><label>Quantity</label><input id="eng-qty" type="number" min="1" value="5"></div>
+      <div class="field"><label>Material cost per unit (£)</label><input id="eng-mat" type="number" step="0.01" value="1.00"></div>
+      <div class="field"><label>Engrave time per unit (min)</label><input id="eng-time" type="number" step="0.1" value="3.0"></div>
+      <div class="field"><label>Machine rate (£/hr)</label><input id="eng-rate" type="number" step="0.01" value="18"></div>
+      <div class="field"><label>Setup time (min)</label><input id="eng-setup" type="number" step="0.1" value="4"></div>
+      <div class="field"><label>Finishing time per unit (min)</label><input id="eng-finish" type="number" step="0.1" value="0.5"></div>
+      <div class="field"><label>Operator labour (£/hr)</label><input id="eng-oprate" type="number" step="0.01" value="12"></div>
+      <div class="field"><label>Packaging per unit (£)</label><input id="eng-pack" type="number" step="0.01" value="0.10"></div>
+      <div class="field"><label>Wastage %</label><input id="eng-waste" type="number" step="1" value="2"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" id="eng-calc">Calculate</button>
+      <button id="eng-clear">Clear</button>
+    </div>`;
+  const out=resultPanel(root,'eng');
+  const id=x=>document.getElementById(x);
+
+  function calc(){
+    const qty=+id('eng-qty').value||0, mat=+id('eng-mat').value||0, pack=+id('eng-pack').value||0, waste=(+id('eng-waste').value||0)/100;
+    const tPer=+id('eng-time').value||0, rate=+id('eng-rate').value||0, setup=+id('eng-setup').value||0, finish=+id('eng-finish').value||0, opr=+id('eng-oprate').value||0;
+
+    const machineHours = (setup/60) + (tPer/60)*qty;
+    const machineCostTotal = machineHours * rate;
+    const operatorHours = (finish/60)*qty;
+    const operatorCostTotal = operatorHours * opr;
+
+    const matPer = mat + pack;
+    const labourPer = (machineCostTotal + operatorCostTotal)/qty;
+
+    Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer); Calc.add('Wastage allowance', qty*waste, matPer);
+    const t=totals(); out.set(t,Calc.lines,cfg.currency);
+  }
+  $('#eng-calc').onclick=calc;
+  $('#eng-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
+})();
+
+/* ---------- Homeware (e.g., mugs, coasters) ---------- */
+(function(){
+  const root=$('#tab-homeware');
+  root.innerHTML=`
+    <h2>Homeware</h2>
+    <div class="grid cols-3" id="hw-form">
+      <div class="field"><label>Quantity</label><input id="hw-qty" type="number" min="1" value="6"></div>
+      <div class="field"><label>Blank cost per unit (£)</label><input id="hw-blank" type="number" step="0.01" value="2.10"></div>
+      <div class="field"><label>Print/consumable per unit (£)</label><input id="hw-cons" type="number" step="0.01" value="0.80"></div>
+      <div class="field"><label>Labour per unit (min)</label><input id="hw-min" type="number" step="0.1" value="1.2"></div>
+      <div class="field"><label>Labour rate (£/hr)</label><input id="hw-rate" type="number" step="0.01" value="12"></div>
+      <div class="field"><label>Packaging per unit (£)</label><input id="hw-pack" type="number" step="0.01" value="0.20"></div>
+      <div class="field"><label>Setup time (min)</label><input id="hw-setup" type="number" step="0.1" value="3"></div>
+      <div class="field"><label>Wastage %</label><input id="hw-waste" type="number" step="1" value="2"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" id="hw-calc">Calculate</button>
+      <button id="hw-clear">Clear</button>
+    </div>`;
+  const out=resultPanel(root,'hw');
+  const id=x=>document.getElementById(x);
+
+  function calc(){
+    const qty=+id('hw-qty').value||0, blank=+id('hw-blank').value||0, cons=+id('hw-cons').value||0, pack=+id('hw-pack').value||0;
+    const min=+id('hw-min').value||0, rate=+id('hw-rate').value||0, setup=+id('hw-setup').value||0, waste=(+id('hw-waste').value||0)/100;
+
+    const matPer = blank + cons + pack;
+    const labourTotal = ((setup/60) + (min/60)*qty)*rate;
+    const labourPer = labourTotal/qty;
+
+    Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer); Calc.add('Wastage allowance', qty*waste, matPer);
+    const t=totals(); out.set(t,Calc.lines,cfg.currency);
+  }
+  $('#hw-calc').onclick=calc;
+  $('#hw-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
+})();
+
+/* ---------- Books (simple booklet costing) ---------- */
+(function(){
+  const root=$('#tab-books');
+  root.innerHTML=`
+    <h2>Books</h2>
+    <div class="grid cols-3" id="bk-form">
+      <div class="field"><label>Quantity</label><input id="bk-qty" type="number" min="1" value="20"></div>
+      <div class="field"><label>Pages per book</label><input id="bk-pages" type="number" min="1" value="40"></div>
+      <div class="field"><label>Print cost per page (£)</label><input id="bk-pp" type="number" step="0.001" value="0.05"></div>
+      <div class="field"><label>Cover cost per book (£)</label><input id="bk-cover" type="number" step="0.01" value="0.60"></div>
+      <div class="field"><label>Binding cost per book (£)</label><input id="bk-bind" type="number" step="0.01" value="0.40"></div>
+      <div class="field"><label>Setup time (min)</label><input id="bk-setup" type="number" step="0.1" value="10"></div>
+      <div class="field"><label>Labour per book (min)</label><input id="bk-min" type="number" step="0.1" value="1.5"></div>
+      <div class="field"><label>Labour rate (£/hr)</label><input id="bk-rate" type="number" step="0.01" value="12"></div>
+      <div class="field"><label>Wastage %</label><input id="bk-waste" type="number" step="1" value="2"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" id="bk-calc">Calculate</button>
+      <button id="bk-clear">Clear</button>
+    </div>`;
+  const out=resultPanel(root,'bk');
+  const id=x=>document.getElementById(x);
+
+  function calc(){
+    const qty=+id('bk-qty').value||0, pages=+id('bk-pages').value||0, pp=+id('bk-pp').value||0;
+    const cover=+id('bk-cover').value||0, bind=+id('bk-bind').value||0;
+    const setup=+id('bk-setup').value||0, min=+id('bk-min').value||0, rate=+id('bk-rate').value||0, waste=(+id('bk-waste').value||0)/100;
+
+    const matPer = pages*pp + cover + bind;
+    const labourTotal = (setup/60)*rate + (min/60)*rate*qty;
+    const labourPer = labourTotal/qty;
+
+    Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer); Calc.add('Wastage allowance', qty*waste, matPer);
+    const t=totals(); out.set(t,Calc.lines,cfg.currency);
+  }
+  $('#bk-calc').onclick=calc;
+  $('#bk-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
+})();
+
+/* ---------- Load tab from URL hash (optional) ---------- */
+if (location.hash && panels[location.hash.slice(1)]) {
+  document.querySelector(`nav.tabs button[data-tab="${location.hash.slice(1)}"]`)?.click();
+}
 </script>
 </body>
 </html>
