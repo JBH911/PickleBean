@@ -380,7 +380,7 @@ document.getElementById('btn-print').addEventListener('click', ()=>{
 
 /* ---------- Settings ---------- */
 const sf=$('#settings-form');
-[
+const settingsRows = [
  ['Platform Fee %','platform_pct',cfg.platform_pct,'number'],
  ['Payment Fee (fixed)','payment_fixed',cfg.payment_fixed,'number'],
  ['Default Postage (flat)','postage_flat',cfg.postage_flat,'number'],
@@ -396,7 +396,8 @@ const sf=$('#settings-form');
  ['Payment terms','payment_terms',cfg.payment_terms||'Payment due within 7 days.','textarea'],
  ['Machine & tools flat fee (per quote)','machine_tools_flat',cfg.machine_tools_flat||0,'number'],
  ['Default packaging per unit','default_packaging_per_unit',cfg.default_packaging_per_unit||0,'number']
-].forEach(([label,key,val,type,options])=>{
+];
+settingsRows.forEach(([label,key,val,type,options])=>{
   const d=document.createElement('div');d.className='field';
   if(type==='select'){
     d.innerHTML=`<label>${label}</label><select data-key="${key}">${options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>`;
@@ -404,7 +405,7 @@ const sf=$('#settings-form');
   } else if (type==='textarea'){
     d.innerHTML=`<label>${label}</label><textarea data-key="${key}" placeholder="${label}">${val||''}</textarea>`;
   } else if (type==='number'){
-    d.innerHTML=`<label>${label}</label><input type="number" step="0.01" value="${val}" data-key="${key}">";
+    d.innerHTML=`<label>${label}</label><input type="number" step="0.01" value="${val}" data-key="${key}">`;
   } else {
     d.innerHTML=`<label>${label}</label><input type="text" value="${val}" placeholder="${label}" data-key="${key}">`;
   }
