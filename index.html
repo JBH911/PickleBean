@@ -15,14 +15,17 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+a{color:inherit}
 header{position:sticky;top:0;background:linear-gradient(180deg,#111218,#0f0f1200);border-bottom:1px solid #1f2230;backdrop-filter:blur(6px);padding:14px 18px;z-index:2}
 .brand{display:flex;align-items:center;gap:12px}
-.logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:var(--shadow)}
+.logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--accent));display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:var(--shadow);overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:cover;display:block}
+.logo-fallback{display:grid;place-items:center;font-weight:800}
 h1{margin:0;font-size:18px}
 .sub{margin:2px 0 0;color:var(--muted);font-size:13px}
 nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 nav.tabs button{padding:10px 14px;border-radius:10px;background:var(--panel);border:1px solid #242632;color:var(--text);cursor:pointer}
-nav.tabs button.active{outline:2px solid --brand}
+nav.tabs button.active{outline:2px solid var(--brand)}
 main{max-width:1100px;margin:24px auto;padding:0 18px;min-height:60vh}
 .panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid #222636;border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
 .grid{display:grid;gap:14px}
@@ -51,13 +54,11 @@ small.muted{color:var(--muted)}
 @media print {
   header, nav, footer, .tabs, .panel:not(#print-sheet) { display:none !important; }
   body { background:#fff; color:#000; }
-  #print-sheet { display:block !important; padding:24px; }
-  #print-header { display:flex; align-items:center; gap:16px; border-bottom:2px solid #000; padding-bottom:12px; margin-bottom:12px; }
-  #pr-logo { width:72px; height:auto; object-fit:contain; }
-  #print-header .binfo { flex:1; }
-  #print-header h1 { margin:0 0 4px; font-size:22px; }
-  #print-header .muted { color:#444; }
-  #print-meta { display:flex; gap:24px; flex-wrap:wrap; margin:10px 0 0; }
+  #print-sheet { display:block !important; padding:24px; max-width:900px; margin:0 auto; }
+  #print-sheet header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  #print-sheet .logo{width:56px;height:56px;border-radius:10px;box-shadow:none}
+  #print-sheet .company h1{margin:0;font-size:20px}
+  #print-sheet .company .muted{color:#555}
   #print-sheet h2 { margin:18px 0 8px; font-size:16px; }
   #print-sheet .row { display:flex; gap:18px; flex-wrap:wrap; margin:8px 0; }
   #print-sheet .kvs div { margin:2px 0; }
@@ -66,15 +67,16 @@ small.muted{color:var(--muted)}
   #print-sheet .totals { margin-top:14px; }
   #print-sheet .totals div { margin:2px 0; }
   #print-sheet .muted { color:#555; }
+  #print-meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid #eee;margin-top:16px;padding-top:12px}
 }
 </style>
 </head>
 <body>
 <header>
   <div class="brand">
-    <div class="logo" aria-hidden="true">PB</div>
+    <div class="logo" aria-hidden="true" id="site-logo"><div class="logo-fallback">PB</div></div>
     <div>
-      <h1>Pricing Calculator</h1>
+      <h1 id="site-company">Pricing Calculator</h1>
       <p class="sub">Single-file — multi-category</p>
     </div>
   </div>
@@ -85,6 +87,7 @@ small.muted{color:var(--muted)}
     <button data-tab="engraving" role="tab">Engraving</button>
     <button data-tab="homeware" role="tab">Homeware</button>
     <button data-tab="books" role="tab">Books</button>
+    <button data-tab="listing" role="tab">Listing</button>
     <button data-tab="settings" role="tab" style="margin-left:auto">Settings</button>
     <button data-tab="qq" role="tab">Quick Quote</button>
   </nav>
@@ -93,7 +96,7 @@ small.muted{color:var(--muted)}
 <main>
   <section id="tab-home" class="panel">
     <h2>Welcome</h2>
-    <p>This single-file calculator has full tabs for all categories. Use <b>Settings</b> to adjust fees, postage, margin, branding, contact, and terms. Use <b>Quick Quote</b> for fast estimates.</p>
+    <p>This single-file calculator has full tabs for all categories. Use <b>Settings</b> to adjust fees/postage/margin, branding & contact details, quote validity & payment terms. Use <b>Quick Quote</b> for fast estimates.</p>
   </section>
 
   <section id="tab-stickers" class="panel hidden"></section>
@@ -101,6 +104,7 @@ small.muted{color:var(--muted)}
   <section id="tab-engraving" class="panel hidden"></section>
   <section id="tab-homeware" class="panel hidden"></section>
   <section id="tab-books" class="panel hidden"></section>
+  <section id="tab-listing" class="panel hidden"></section>
 
   <section id="tab-settings" class="panel hidden">
     <h2>Settings</h2>
@@ -135,23 +139,24 @@ small.muted{color:var(--muted)}
     <button id="btn-email" class="ghost">Email Quote</button>
     <button id="btn-print" class="primary">Print / PDF</button>
   </div>
-  <small>© <span id="year"></span> PickleBean Press</small>
+  <small>© <span id="year"></span> <span id="foot-company">PickleBean Press</span></small>
 </footer>
 
 <!-- Print-only container -->
-<section id="print-sheet" aria-hidden="true">
-  <div id="print-header">
-    <img id="pr-logo" alt="Logo">
-    <div class="binfo">
-      <h1 id="pr-biz">Quote</h1>
-      <div class="muted" id="pr-contact">—</div>
-      <div id="print-meta">
-        <div><strong>Date:</strong> <span id="pr-date">—</span></div>
-        <div><strong>Valid until:</strong> <span id="pr-valid">—</span></div>
-        <div><strong>Category:</strong> <span id="pr-category">—</span></div>
-        <div><strong>Item:</strong> <span id="pr-item">—</span></div>
-      </div>
+<section id="print-sheet" aria-hidden="true" class="panel">
+  <header>
+    <div class="logo" id="pr-logo"></div>
+    <div class="company">
+      <h1 id="pr-company">PickleBean Press</h1>
+      <div class="muted" id="pr-contact"></div>
     </div>
+  </header>
+
+  <div id="print-meta">
+    <div><strong>Category:</strong> <span id="pr-category">—</span></div>
+    <div><strong>Item:</strong> <span id="pr-item">—</span></div>
+    <div><strong>Date:</strong> <span id="pr-date">—</span></div>
+    <div><strong>Valid until:</strong> <span id="pr-valid">—</span></div>
   </div>
 
   <h2>Breakdown</h2>
@@ -165,17 +170,18 @@ small.muted{color:var(--muted)}
     <div><strong>Platform Fees:</strong> <span id="pr-fees">—</span></div>
     <div><strong>Postage:</strong> <span id="pr-post">—</span></div>
     <div><strong>Margin:</strong> <span id="pr-mar">—</span></div>
+    <div class="hidden" id="pr-flat-wrap"><strong>Machine/Tools:</strong> <span id="pr-flat">—</span></div>
     <div><strong>TOTAL:</strong> <span id="pr-total">—</span></div>
   </div>
 
   <h2>Notes</h2>
   <div id="pr-notes" class="muted">—</div>
 
-  <h2>Payment Terms</h2>
-  <div id="pr-terms" class="muted">—</div>
+  <h2>Payment terms</h2>
+  <div id="pr-terms" class="muted">Payment due within 7 days.</div>
 
   <p class="muted" style="margin-top:18px">
-    Generated by <span id="pr-generated"></span>
+    Generated by <span id="gen-company">PickleBean Press</span> — <span id="pr-generated"></span>
   </p>
 </section>
 
@@ -186,14 +192,22 @@ const money=(n,c='GBP')=>new Intl.NumberFormat('en-GB',{style:'currency',currenc
 const store=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 const load=(k)=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
 const defaults={
-  platform_pct:6.5, payment_fixed:0.20, postage_flat:0.87, margin_pct:50, currency:'GBP',
+  platform_pct:6.5,
+  payment_fixed:0.20,
+  postage_flat:0.87,
+  margin_pct:50,
+  currency:'GBP',
   cc_email:'',
-  // Business & branding
-  business_name:'PickleBean Press',
-  contact_email:'', contact_phone:'', contact_address:'', website:'',
-  logo_url:'', // paste an image URL (e.g. raw GitHub link)
-  terms_text:'Payment due within 7 days. Goods produced on receipt of payment unless agreed otherwise.',
-  validity_days:14
+  logo_url:'',
+  company_name:'PickleBean Press',
+  company_email:'',
+  company_phone:'',
+  company_address:'',
+  quote_valid_days:14,
+  payment_terms:'Payment due within 7 days.',
+  // New from Sam:
+  machine_tools_flat:1.00,
+  default_packaging_per_unit:0.0685
 };
 let cfg=Object.assign({},defaults,load('pb_settings')||{});
 
@@ -208,13 +222,27 @@ function totals(){
   const fees=s*(cfg.platform_pct/100)+cfg.payment_fixed;
   const post=cfg.postage_flat;
   const margin=s*(cfg.margin_pct/100);
-  return {subtotal:s,fees,postage:post,margin,grand:s+fees+post+margin};
+  const flat=Number(cfg.machine_tools_flat)||0;
+  return {subtotal:s,fees,postage:post,margin,flat,grand:s+fees+post+margin+flat};
 }
 
 /* ---------- Tabs & actions ---------- */
-document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');Object.values(panels).forEach(p=>p.classList.add('hidden'));panels[b.dataset.tab].classList.remove('hidden');location.hash=b.dataset.tab});
-const panels={home:$('#tab-home'),stickers:$('#tab-stickers'),apparel:$('#tab-apparel'),engraving:$('#tab-engraving'),homeware:$('#tab-homeware'),books:$('#tab-books'),settings:$('#tab-settings'),qq:$('#tab-qq')};
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');Object.values(panels).forEach(p=>p.classList.add('hidden'));panels[b.dataset.tab].classList.remove('hidden');location.hash=b.dataset.tab; if(b.dataset.tab==='listing'){ buildListingIfNeeded(); refreshListingFromQuote(); }});
+const panels={home:$('#tab-home'),stickers:$('#tab-stickers'),apparel:$('#tab-apparel'),engraving:$('#tab-engraving'),homeware:$('#tab-homeware'),books:$('#tab-books'),listing:$('#tab-listing'),settings:$('#tab-settings'),qq:$('#tab-qq')};
 $('#year').textContent=new Date().getFullYear();
+
+/* Header/company branding live fill */
+function applyBranding(){
+  const siteLogo=$('#site-logo'); siteLogo.innerHTML='';
+  if (cfg.logo_url){
+    const img=new Image(); img.src=cfg.logo_url; img.alt='Logo'; siteLogo.append(img);
+  } else {
+    const fb=document.createElement('div'); fb.className='logo-fallback'; fb.textContent='PB'; siteLogo.append(fb);
+  }
+  $('#site-company').textContent = cfg.company_name || 'Pricing Calculator';
+  $('#foot-company').textContent = cfg.company_name || 'PickleBean Press';
+}
+applyBranding();
 
 $('#btn-copy').onclick=()=>navigator.clipboard.writeText(JSON.stringify({cfg,last:window.lastQuote||{}},null,2)).then(()=>alert('Copied!'));
 $('#btn-reset').onclick=()=>{localStorage.clear();location.reload()};
@@ -226,14 +254,7 @@ function activeTab(){
   return btn?.dataset.tab || 'home';
 }
 function collectDescAndNotes(tab){
-  const map={
-    stickers:['desc-stk','notes-stk'],
-    apparel:['desc-app','notes-app'],
-    engraving:['desc-eng','notes-eng'],
-    homeware:['desc-hw','notes-hw'],
-    books:['desc-bk','notes-bk'],
-    qq:[null,null], home:[null,null], settings:[null,null]
-  };
+  const map={stickers:['desc-stk','notes-stk'],apparel:['desc-app','notes-app'],engraving:['desc-eng','notes-eng'],homeware:['desc-hw','notes-hw'],books:['desc-bk','notes-bk']};
   const [dId,nId]=map[tab]||[null,null];
   return {
     desc: dId ? (document.getElementById(dId)?.value || '') : (window.lastQuote?.description || ''),
@@ -241,29 +262,34 @@ function collectDescAndNotes(tab){
   };
 }
 function composeEmailBody(q){
-  const lines = (q.lines||[]).map(L=>`• ${L.label}: ${L.qty} × ${money(L.unit,q.currency||cfg.currency)} = ${money(L.cost,q.currency||cfg.currency)}`).join('\n');
+  const cur=q.currency||cfg.currency;
+  const lines = (q.lines||[]).map(L=>`• ${L.label}: ${L.qty} × ${money(L.unit,cur)} = ${money(L.cost,cur)}`).join('\n');
   const t = q.totals;
+  const validUntil = formatDate(addDays(new Date(), cfg.quote_valid_days));
+  const contact = [
+    cfg.company_name,
+    cfg.company_email,
+    cfg.company_phone,
+    cfg.company_address
+  ].filter(Boolean).join(' | ');
   const parts = [
-    `Business: ${cfg.business_name}`,
-    cfg.website ? `Website: ${cfg.website}` : null,
-    cfg.contact_email ? `Email: ${cfg.contact_email}` : null,
-    cfg.contact_phone ? `Phone: ${cfg.contact_phone}` : null,
-    '',
+    contact ? `${contact}\n` : null,
     `Category: ${q.category||'—'}`,
     q.description ? `Item: ${q.description}` : null,
     '',
     'Breakdown:',
     lines || '• (no lines)',
     '',
-    `Subtotal: ${money(t.subtotal, q.currency||cfg.currency)}`,
-    `Platform Fees: ${money(t.fees, q.currency||cfg.currency)}`,
-    `Postage: ${money(t.postage, q.currency||cfg.currency)}`,
-    `Margin: ${money(t.margin, q.currency||cfg.currency)}`,
-    `TOTAL: ${money(t.grand, q.currency||cfg.currency)}`,
+    `Subtotal: ${money(t.subtotal, cur)}`,
+    `Platform Fees: ${money(t.fees, cur)}`,
+    `Postage: ${money(t.postage, cur)}`,
+    `Margin: ${money(t.margin, cur)}`,
+    t.flat ? `Machine/Tools: ${money(t.flat, cur)}` : null,
+    `TOTAL: ${money(t.grand, cur)}`,
     '',
     q.notes ? `Notes: ${q.notes}` : null,
-    `Valid until: ${formatValidUntil(cfg.validity_days)}`,
-    `Terms: ${cfg.terms_text}`,
+    `Valid until: ${validUntil}`,
+    `Payment terms: ${cfg.payment_terms}`,
     `Generated: ${new Date().toLocaleString()}`
   ].filter(Boolean);
   return parts.join('\n');
@@ -271,7 +297,14 @@ function composeEmailBody(q){
 $('#btn-email').onclick=()=>{
   const tab = activeTab();
   const {desc, notes} = collectDescAndNotes(tab);
-  const fallback = { category: tab, description: desc, notes, currency: cfg.currency, lines: [], totals: {subtotal:0,fees:0,postage:cfg.postage_flat,margin:0,grand:cfg.postage_flat} };
+  const fallback = {
+    category: tab,
+    description: desc,
+    notes,
+    currency: cfg.currency,
+    lines: [],
+    totals: { subtotal:0, fees:0, postage:cfg.postage_flat, margin:0, flat:Number(cfg.machine_tools_flat)||0, grand:cfg.postage_flat + (Number(cfg.machine_tools_flat)||0) }
+  };
   const q = window.lastQuote ? { ...window.lastQuote } : fallback;
   if (desc) q.description = desc;
   if (notes) q.notes = notes;
@@ -289,59 +322,54 @@ $('#btn-email').onclick=()=>{
 };
 
 /* ---------- Print / PDF ---------- */
-function formatValidUntil(days){
-  const d = new Date(Date.now() + (Number(days)||0)*24*60*60*1000);
-  return d.toLocaleDateString();
-}
+function addDays(d,days){ const nd=new Date(d); nd.setDate(nd.getDate()+days); return nd; }
+function formatDate(d){ return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
 function fillPrintSheet(q){
   const cur=q.currency||cfg.currency;
-  const set=(id,val)=>document.getElementById(id).textContent = val;
+  const set=(id, val)=>document.getElementById(id).textContent = val;
 
-  // Header visuals & biz info
-  const logoEl = document.getElementById('pr-logo');
-  if (cfg.logo_url) { logoEl.src = cfg.logo_url; logoEl.style.display='block'; }
-  else { logoEl.style.display='none'; }
+  // logo
+  const prLogo=$('#pr-logo'); prLogo.innerHTML=''; 
+  if (cfg.logo_url){ const img=new Image(); img.src=cfg.logo_url; img.alt='Logo'; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; prLogo.append(img); }
+  // company block
+  $('#pr-company').textContent = cfg.company_name || '—';
+  const contactBits=[cfg.company_email,cfg.company_phone,cfg.company_address].filter(Boolean);
+  $('#pr-contact').textContent = contactBits.join(' | ');
+  $('#gen-company').textContent = cfg.company_name || '—';
 
-  set('pr-biz', cfg.business_name || 'Quote');
-  const contactBits = [
-    cfg.website && `🌐 ${cfg.website}`,
-    cfg.contact_email && `✉️ ${cfg.contact_email}`,
-    cfg.contact_phone && `☎️ ${cfg.contact_phone}`,
-    cfg.contact_address && `📍 ${cfg.contact_address}`
-  ].filter(Boolean).join('  ·  ');
-  set('pr-contact', contactBits || '—');
-
-  set('pr-date', new Date().toLocaleString());
-  set('pr-valid', formatValidUntil(cfg.validity_days));
   set('pr-category', q.category || activeTab());
   set('pr-item', q.description || '—');
-
-  const nf=(n)=>new Intl.NumberFormat('en-GB',{style:'currency',currency:cur}).format(n);
-  set('pr-sub', nf(q.totals.subtotal));
-  set('pr-fees', nf(q.totals.fees));
-  set('pr-post', nf(q.totals.postage));
-  set('pr-mar',  nf(q.totals.margin));
-  set('pr-total',nf(q.totals.grand));
+  set('pr-date', new Date().toLocaleString());
+  set('pr-sub', money(q.totals.subtotal, cur));
+  set('pr-fees', money(q.totals.fees, cur));
+  set('pr-post', money(q.totals.postage, cur));
+  set('pr-mar',  money(q.totals.margin, cur));
+  if (q.totals.flat){ $('#pr-flat').textContent = money(q.totals.flat,cur); $('#pr-flat-wrap').classList.remove('hidden'); }
+  else { $('#pr-flat-wrap').classList.add('hidden'); }
+  set('pr-total',money(q.totals.grand, cur));
   set('pr-generated', new Date().toLocaleString());
+  set('pr-valid', formatDate(addDays(new Date(), Number(cfg.quote_valid_days)||14)));
+  document.getElementById('pr-terms').textContent = cfg.payment_terms || '';
   document.getElementById('pr-notes').textContent = q.notes || '—';
-  document.getElementById('pr-terms').textContent = cfg.terms_text || '—';
 
-  const tbody=document.getElementById('pr-lines');
-  tbody.innerHTML='';
+  const tbody=document.getElementById('pr-lines'); tbody.innerHTML='';
   (q.lines||[]).forEach(L=>{
     const tr=document.createElement('tr');
-    tr.innerHTML = `<td>${L.label}</td><td>${L.qty}</td><td>${nf(L.unit)}</td><td>${nf(L.cost)}</td>`;
+    tr.innerHTML = `<td>${L.label}</td><td>${L.qty}</td><td>${money(L.unit, cur)}</td><td>${money(L.cost, cur)}</td>`;
     tbody.append(tr);
   });
 }
 document.getElementById('btn-print').addEventListener('click', ()=>{
   const tab = activeTab();
-  const map={stickers:['desc-stk','notes-stk'],apparel:['desc-app','notes-app'],engraving:['desc-eng','notes-eng'],homeware:['desc-hw','notes-hw'],books:['desc-bk','notes-bk']};
-  const [dId,nId]=(map[tab]||[]);
-  const desc = dId ? (document.getElementById(dId)?.value || '') : '';
-  const notes = nId ? (document.getElementById(nId)?.value || '') : '';
-
-  const fallback = { category: tab, description: desc, notes, currency: cfg.currency, lines: [], totals: { subtotal:0, fees:0, postage:cfg.postage_flat, margin:0, grand:cfg.postage_flat } };
+  const {desc, notes} = collectDescAndNotes(tab);
+  const fallback = {
+    category: tab,
+    description: desc,
+    notes,
+    currency: cfg.currency,
+    lines: [],
+    totals: { subtotal:0, fees:0, postage:cfg.postage_flat, margin:0, flat:Number(cfg.machine_tools_flat)||0, grand:cfg.postage_flat + (Number(cfg.machine_tools_flat)||0) }
+  };
   const q = window.lastQuote ? { ...window.lastQuote } : fallback;
   if (desc) q.description = desc;
   if (notes) q.notes = notes;
@@ -359,26 +387,26 @@ const sf=$('#settings-form');
  ['Default Margin %','margin_pct',cfg.margin_pct,'number'],
  ['Currency','currency',cfg.currency,'select',['GBP','USD','EUR']],
  ['Your email for CC','cc_email',cfg.cc_email||'','text'],
- // Branding & business
- ['Business name','business_name',cfg.business_name||'PickleBean Press','text'],
- ['Website','website',cfg.website||'','text'],
- ['Contact email','contact_email',cfg.contact_email||'','text'],
- ['Contact phone','contact_phone',cfg.contact_phone||'','text'],
- ['Contact address','contact_address',cfg.contact_address||'','text'],
  ['Logo URL','logo_url',cfg.logo_url||'','text'],
- ['Quote validity (days)','validity_days',cfg.validity_days||14,'number'],
- ['Payment terms','terms_text',cfg.terms_text||'','textarea']
+ ['Company name','company_name',cfg.company_name||'','text'],
+ ['Company email','company_email',cfg.company_email||'','text'],
+ ['Company phone','company_phone',cfg.company_phone||'','text'],
+ ['Company address','company_address',cfg.company_address||'','textarea'],
+ ['Quote valid for (days)','quote_valid_days',cfg.quote_valid_days||14,'number'],
+ ['Payment terms','payment_terms',cfg.payment_terms||'Payment due within 7 days.','textarea'],
+ ['Machine & tools flat fee (per quote)','machine_tools_flat',cfg.machine_tools_flat||0,'number'],
+ ['Default packaging per unit','default_packaging_per_unit',cfg.default_packaging_per_unit||0,'number']
 ].forEach(([label,key,val,type,options])=>{
   const d=document.createElement('div');d.className='field';
   if(type==='select'){
     d.innerHTML=`<label>${label}</label><select data-key="${key}">${options.map(o=>`<option value="${o}">${o}</option>`).join('')}</select>`;
     d.querySelector('select').value=val;
-  } else if (type==='number'){
-    d.innerHTML=`<label>${label}</label><input type="number" step="0.01" value="${val}" data-key="${key}">`;
   } else if (type==='textarea'){
-    d.innerHTML=`<label>${label}</label><textarea data-key="${key}" placeholder="Enter payment terms...">${val}</textarea>`;
+    d.innerHTML=`<label>${label}</label><textarea data-key="${key}" placeholder="${label}">${val||''}</textarea>`;
+  } else if (type==='number'){
+    d.innerHTML=`<label>${label}</label><input type="number" step="0.01" value="${val}" data-key="${key}">";
   } else {
-    d.innerHTML=`<label>${label}</label><input type="text" value="${val}" data-key="${key}">`;
+    d.innerHTML=`<label>${label}</label><input type="text" value="${val}" placeholder="${label}" data-key="${key}">`;
   }
   sf.append(d);
 });
@@ -387,11 +415,12 @@ $('#save-settings').onclick=()=>{
   sf.querySelectorAll('input,select,textarea').forEach(el=>{
     const k=el.dataset.key;
     const raw=el.value;
-    if (k==='currency' || k==='cc_email' || k==='website' || k==='contact_email' || k==='contact_phone' || k==='contact_address' || k==='business_name' || k==='logo_url' || k==='terms_text') out[k]=raw;
+    if (['currency','cc_email','logo_url','company_name','company_email','company_phone','company_address','payment_terms'].includes(k)) out[k]=raw;
     else out[k]=Number(raw);
   });
   cfg=Object.assign({}, cfg, out);
   store('pb_settings',out);
+  applyBranding();
   alert('Saved'); location.reload();
 };
 $('#clear-settings').onclick=()=>{localStorage.removeItem('pb_settings'); location.reload()};
@@ -432,14 +461,14 @@ $('#qq-calc').onclick=()=>{
     currency:els[9].value, notes:els[10].value||''
   };
   Calc.reset(); Calc.add('Materials',data.qty,data.unitMat); Calc.add('Labour',data.qty,data.unitLab);
-  const s=Calc.subtotal(); const f=s*(data.feePct/100)+data.feeFixed; const p=data.postage; const m=s*(data.marginPct/100); const g=s+f+p+m;
-  window.lastQuote={category:data.category, description:data.description, lines:Calc.lines, totals:{subtotal:s,fees:f,postage:p,margin:m,grand:g}, currency:data.currency, notes:data.notes};
+  const s=Calc.subtotal(); const f=s*(data.feePct/100)+data.feeFixed; const p=data.postage; const m=s*(data.marginPct/100); const flat=cfg.machine_tools_flat||0; const g=s+f+p+m+flat;
+  window.lastQuote={category:data.category, description:data.description, lines:Calc.lines, totals:{subtotal:s,fees:f,postage:p,margin:m,flat,grand:g}, currency:data.currency, notes:data.notes};
   $('#qq-total').textContent=money(g,data.currency);
-  $('#qq-breakdown').innerHTML=`<div class="chip">Subtotal: ${money(s,data.currency)}</div><div class="chip">Platform Fees: ${money(f,data.currency)}</div><div class="chip">Postage: ${money(p,data.currency)}</div><div class="chip">Margin: ${money(m,data.currency)}</div>`;
+  $('#qq-breakdown').innerHTML=`<div class="chip">Subtotal: ${money(s,data.currency)}</div><div class="chip">Platform Fees: ${money(f,data.currency)}</div><div class="chip">Postage: ${money(p,data.currency)}</div><div class="chip">Margin: ${money(m,data.currency)}</div>${flat?`<div class="chip">Machine/Tools: ${money(flat,data.currency)}</div>`:''}`;
 };
 $('#qq-clear').onclick=()=>{$('#qq-total').textContent='—';$('#qq-breakdown').innerHTML='';qf.querySelectorAll('input').forEach(i=>i.value='')};
 
-/* ---------- Helpers to build category UIs ---------- */
+/* ---------- Helpers ---------- */
 function chip(label,val,c=cfg.currency){ const d=document.createElement('div'); d.className='chip'; d.textContent=`${label}: ${money(val,c)}`; return d; }
 function resultPanel(root,idPrefix){
   const panel=document.createElement('div'); panel.className='panel'; panel.style.marginTop='16px';
@@ -448,7 +477,7 @@ function resultPanel(root,idPrefix){
   return {
     set(t,lines,curr=cfg.currency){
       $('#'+idPrefix+'-total').textContent=money(t.grand,curr);
-      const bk=$('#'+idPrefix+'-bk'); bk.innerHTML=''; bk.append(chip('Subtotal',t.subtotal,curr),chip('Platform Fees',t.fees,curr),chip('Postage',t.postage,curr),chip('Margin',t.margin,curr));
+      const bk=$('#'+idPrefix+'-bk'); bk.innerHTML=''; bk.append(chip('Subtotal',t.subtotal,curr),chip('Platform Fees',t.fees,curr),chip('Postage',t.postage,curr),chip('Margin',t.margin,curr)); if (t.flat) bk.append(chip('Machine/Tools',t.flat,curr));
       const ln=$('#'+idPrefix+'-lines'); ln.innerHTML=''; lines.forEach(L=>ln.append(chip(`${L.label} (${L.qty} × ${money(L.unit,curr)})`, L.cost, curr)));
     },
     clear(){ $('#'+idPrefix+'-total').textContent='—'; $('#'+idPrefix+'-bk').innerHTML=''; $('#'+idPrefix+'-lines').innerHTML=''; }
@@ -468,17 +497,22 @@ function resultPanel(root,idPrefix){
     </div>
     <div class="grid cols-3" id="stk-form">
       <div class="field"><label>Quantity</label><input id="stk-qty" type="number" min="1" value="2"></div>
-      <div class="field"><label>Sticker Width (in)</label><input id="stk-w" type="number" step="0.01" value="6"></div>
-      <div class="field"><label>Sticker Height (in)</label><input id="stk-h" type="number" step="0.01" value="2"></div>
-      <div class="field"><label>Wastage / Offcuts %</label><input id="stk-waste" type="number" step="1" value="10"></div>
-      <div class="field"><label>Labour per sticker (min)</label><input id="stk-min" type="number" step="0.1" value="1.5"></div>
-      <div class="field"><label>Labour rate (£/hr)</label><input id="stk-rate" type="number" step="0.01" value="12"></div>
-      <div class="field"><label>Vinyl roll width (in)</label><input id="vinyl-w" type="number" step="0.1" value="12"></div>
-      <div class="field"><label>Vinyl roll length (ft)</label><input id="vinyl-l" type="number" step="0.1" value="10"></div>
-      <div class="field"><label>Vinyl roll cost (£)</label><input id="vinyl-cost" type="number" step="0.01" value="10.99"></div>
-      <div class="field"><label>Transfer tape roll cost (£)</label><input id="tape-cost" type="number" step="0.01" value="6.50"></div>
-      <div class="field"><label>Apply tape (≈ sticker area)?</label><select id="tape-area"><option value="1" selected>Yes</option><option value="0">No (0)</option></select></div>
-      <div class="field"><label>Extra tape margin %</label><input id="tape-margin" type="number" step="1" value="0"></div>
+      <div class="field"><label>Unit Material Cost (£)</label><input id="stk-mat" type="number" step="0.01" value="0.50"></div>
+      <div class="field"><label>Labour per unit (min)</label><input id="stk-min" type="number" step="0.1" value="1.5"></div>
+      <div class="field"><label>Hourly rate (£/hr)</label><input id="stk-rate" type="number" step="0.01" value="12"></div>
+      <div class="field"><label>Packaging per sticker (£)</label><input id="stk-pack" type="number" step="0.01" value="${cfg.default_packaging_per_unit||0}"></div>
+      <div class="field"><label>Wastage %</label><input id="stk-waste" type="number" step="1" value="0"></div>
+      <div class="field" style="grid-column:1/-1">
+        <label>Material Quick Picks (Sam presets)</label>
+        <select id="stk-material-pick">
+          <option value="">-- select preset --</option>
+          <option value="0.80">HTV — £0.80</option>
+          <option value="0.50">Vinyl (Permanent) — £0.50</option>
+          <option value="0.30">Vinyl (Other) — £0.30</option>
+          <option value="0.15">Other Material — £0.15</option>
+        </select>
+        <small class="muted">Picking a preset overwrites Unit Material Cost.</small>
+      </div>
     </div>
     <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
       <button class="primary" id="stk-calc">Calculate</button>
@@ -493,33 +527,41 @@ function resultPanel(root,idPrefix){
   root.append(notesWrap);
 
   const id=x=>document.getElementById(x);
+  $('#stk-material-pick').addEventListener('change',e=>{ if(e.target.value) id('stk-mat').value = e.target.value; });
+
   function calc(){
     const desc=id('desc-stk').value||'';
-    const qty=+id('stk-qty').value||0, w=+id('stk-w').value||0, h=+id('stk-h').value||0;
-    const waste=(+id('stk-waste').value||0)/100, minPer=+id('stk-min').value||0, rate=+id('stk-rate').value||0;
-    const rollW=+id('vinyl-w').value||0, rollLft=+id('vinyl-l').value||0, vCost=+id('vinyl-cost').value||0;
-    const tCost=+id('tape-cost').value||0, tFactor=+id('tape-area').value||0, tMargin=(+id('tape-margin').value||0)/100;
+    const qty=+id('stk-qty').value||0;
+    const mat=+(id('stk-mat').value||0);
+    const minPer=+id('stk-min').value||0;
+    const rate=+id('stk-rate').value||0;
+    const packPer=+id('stk-pack').value||0;
+    const waste=(+id('stk-waste').value||0)/100;
 
-    const stickerArea=w*h; // in^2
-    const stickerAreaWaste=stickerArea*(1+waste);
-    const rollArea=rollW*(rollLft*12); // in^2
-    const vinylPerIn2=rollArea? vCost/rollArea : 0;
-    const tapePerIn2 =rollArea? tCost /rollArea : 0;
-    const tapeAreaPer=stickerArea*tFactor*(1+tMargin);
-
-    const matPer = stickerAreaWaste*vinylPerIn2 + tapeAreaPer*tapePerIn2;
     const labourPer=(minPer/60)*rate;
+    const matPer = mat*(1+waste);
 
-    Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer);
+    Calc.reset();
+    Calc.add('Materials',qty,matPer);
+    Calc.add('Labour',qty,labourPer);
+    if (packPer>0) Calc.add('Packaging',qty,packPer);
+
     const t=totals(); out.set(t,Calc.lines,cfg.currency);
 
-    window.lastQuote={ category:'Stickers', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:id('notes-stk').value||'' };
+    window.lastQuote={
+      category:'Stickers',
+      description:desc,
+      currency:cfg.currency,
+      lines:[...Calc.lines],
+      totals:t,
+      notes:id('notes-stk').value||''
+    };
   }
   $('#stk-calc').onclick=calc;
   $('#stk-clear').onclick=()=>{root.querySelectorAll('input,textarea').forEach(i=>i.value=''); out.clear()};
 })();
 
-/* ---------- Apparel ---------- */
+/* ---------- Apparel (skeleton with existing pattern) ---------- */
 (function(){
   const root=$('#tab-apparel');
   root.innerHTML=`
@@ -533,7 +575,6 @@ function resultPanel(root,idPrefix){
     <div class="grid cols-3" id="app-form">
       <div class="field"><label>Quantity</label><input id="app-qty" type="number" min="1" value="10"></div>
       <div class="field"><label>Blank garment cost (£)</label><input id="app-blank" type="number" step="0.01" value="3.50"></div>
-      <div class="field"><label>Print method</label><select id="app-method"><option>DTF</option><option>HTV</option></select></div>
       <div class="field"><label>Transfer/print cost per item (£)</label><input id="app-transfer" type="number" step="0.01" value="1.20"></div>
       <div class="field"><label>Press time per item (min)</label><input id="app-time" type="number" step="0.1" value="0.7"></div>
       <div class="field"><label>Labour rate (£/hr)</label><input id="app-rate" type="number" step="0.01" value="12"></div>
@@ -546,13 +587,6 @@ function resultPanel(root,idPrefix){
       <button id="app-clear">Clear</button>
     </div>`;
   const out=resultPanel(root,'app');
-
-  const notesWrap=document.createElement('div');
-  notesWrap.className='field';
-  notesWrap.style.marginTop='16px';
-  notesWrap.innerHTML=`<label>Notes</label><textarea id="notes-app" placeholder="Sizes, blanks brand, press temp/time, delivery…"></textarea>`;
-  root.append(notesWrap);
-
   const id=x=>document.getElementById(x);
   function calc(){
     const desc=id('desc-app').value||'';
@@ -567,10 +601,9 @@ function resultPanel(root,idPrefix){
     Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer); if (waste>0) Calc.add('Wastage allowance', qty*waste, matPer);
     const t=totals(); out.set(t,Calc.lines,cfg.currency);
 
-    window.lastQuote={ category:'Apparel', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:id('notes-app').value||'' };
+    window.lastQuote={ category:'Apparel', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:'' };
   }
-  $('#app-calc').onclick=calc;
-  $('#app-clear').onclick=()=>{root.querySelectorAll('input,textarea').forEach(i=>i.value=''); out.clear()};
+  $('#app-calc').onclick=calc; $('#app-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
 })();
 
 /* ---------- Engraving ---------- */
@@ -601,12 +634,6 @@ function resultPanel(root,idPrefix){
     </div>`;
   const out=resultPanel(root,'eng');
 
-  const notesWrap=document.createElement('div');
-  notesWrap.className='field';
-  notesWrap.style.marginTop='16px';
-  notesWrap.innerHTML=`<label>Notes</label><textarea id="notes-eng" placeholder="Material type, power/speed, jigs, finishing…"></textarea>`;
-  root.append(notesWrap);
-
   const id=x=>document.getElementById(x);
   function calc(){
     const desc=id('desc-eng').value||'';
@@ -624,10 +651,9 @@ function resultPanel(root,idPrefix){
     Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer); if (waste>0) Calc.add('Wastage allowance', qty*waste, matPer);
     const t=totals(); out.set(t,Calc.lines,cfg.currency);
 
-    window.lastQuote={ category:'Engraving', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:id('notes-eng').value||'' };
+    window.lastQuote={ category:'Engraving', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:'' };
   }
-  $('#eng-calc').onclick=calc;
-  $('#eng-clear').onclick=()=>{root.querySelectorAll('input,textarea').forEach(i=>i.value=''); out.clear()};
+  $('#eng-calc').onclick=calc; $('#eng-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
 })();
 
 /* ---------- Homeware ---------- */
@@ -657,12 +683,6 @@ function resultPanel(root,idPrefix){
     </div>`;
   const out=resultPanel(root,'hw');
 
-  const notesWrap=document.createElement('div');
-  notesWrap.className='field';
-  notesWrap.style.marginTop='16px';
-  notesWrap.innerHTML=`<label>Notes</label><textarea id="notes-hw" placeholder="Dishwasher safe, box type, colour variants…"></textarea>`;
-  root.append(notesWrap);
-
   const id=x=>document.getElementById(x);
   function calc(){
     const desc=id('desc-hw').value||'';
@@ -676,10 +696,9 @@ function resultPanel(root,idPrefix){
     Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer); if (waste>0) Calc.add('Wastage allowance', qty*waste, matPer);
     const t=totals(); out.set(t,Calc.lines,cfg.currency);
 
-    window.lastQuote={ category:'Homeware', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:id('notes-hw').value||'' };
+    window.lastQuote={ category:'Homeware', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:'' };
   }
-  $('#hw-calc').onclick=calc;
-  $('#hw-clear').onclick=()=>{root.querySelectorAll('input,textarea').forEach(i=>i.value=''); out.clear()};
+  $('#hw-calc').onclick=calc; $('#hw-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
 })();
 
 /* ---------- Books ---------- */
@@ -710,12 +729,6 @@ function resultPanel(root,idPrefix){
     </div>`;
   const out=resultPanel(root,'bk');
 
-  const notesWrap=document.createElement('div');
-  notesWrap.className='field';
-  notesWrap.style.marginTop='16px';
-  notesWrap.innerHTML=`<label>Notes</label><textarea id="notes-bk" placeholder="Paper stock, cover laminate, turnaround…"></textarea>`;
-  root.append(notesWrap);
-
   const id=x=>document.getElementById(x);
   function calc(){
     const desc=id('desc-bk').value||'';
@@ -730,11 +743,163 @@ function resultPanel(root,idPrefix){
     Calc.reset(); Calc.add('Materials',qty,matPer); Calc.add('Labour',qty,labourPer); if (waste>0) Calc.add('Wastage allowance', qty*waste, matPer);
     const t=totals(); out.set(t,Calc.lines,cfg.currency);
 
-    window.lastQuote={ category:'Books', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:id('notes-bk').value||'' };
+    window.lastQuote={ category:'Books', description:desc, currency:cfg.currency, lines:[...Calc.lines], totals:t, notes:'' };
   }
-  $('#bk-calc').onclick=calc;
-  $('#bk-clear').onclick=()=>{root.querySelectorAll('input,textarea').forEach(i=>i.value=''); out.clear()};
+  $('#bk-calc').onclick=calc; $('#bk-clear').onclick=()=>{root.querySelectorAll('input').forEach(i=>i.value=''); out.clear()};
 })();
+
+/* ---------- LISTING TAB ---------- */
+let listingBuilt=false;
+function buildListingIfNeeded(){
+  if (listingBuilt) return;
+  const root=$('#tab-listing');
+  root.innerHTML = `
+    <h2>Create Listing</h2>
+    <div class="grid cols-3" id="lst-form">
+      <div class="field" style="grid-column:1/-1">
+        <label>Title</label>
+        <input id="lst-title" placeholder="Auto-filled from quote description">
+      </div>
+
+      <div class="field">
+        <label>Pricing mode</label>
+        <select id="lst-pr-mode">
+          <option value="total" selected>Total price (quote total)</option>
+          <option value="unit">Unit price (total ÷ qty)</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Price</label>
+        <input id="lst-price" type="number" step="0.01" placeholder="0.00">
+      </div>
+
+      <div class="field">
+        <label>Rounding</label>
+        <select id="lst-round">
+          <option value="none" selected>No rounding</option>
+          <option value="0.00">.00</option>
+          <option value="0.49">.49</option>
+          <option value="0.95">.95</option>
+          <option value="0.99">.99</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Quantity</label>
+        <input id="lst-qty" type="number" min="1" step="1" placeholder="Auto from quote">
+      </div>
+
+      <div class="field">
+        <label>SKU (optional)</label>
+        <input id="lst-sku" placeholder="PB-001">
+      </div>
+
+      <div class="field" style="grid-column:1/-1">
+        <label>Tags (comma separated)</label>
+        <input id="lst-tags" placeholder="sticker, vinyl, personalised, instagram, tag">
+      </div>
+
+      <div class="field" style="grid-column:1/-1">
+        <label>Description</label>
+        <textarea id="lst-desc" placeholder="Auto-built from quote breakdown, notes, and terms"></textarea>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" id="lst-refresh">Refresh from quote</button>
+      <button id="lst-copy-title">Copy Title</button>
+      <button id="lst-copy-desc">Copy Description</button>
+      <button id="lst-copy-all">Copy Full Listing</button>
+    </div>
+  `;
+  const id = x => document.getElementById(x);
+  const nf=(n,c)=>new Intl.NumberFormat('en-GB',{style:'currency',currency:c||cfg.currency||'GBP'}).format(Number(n)||0);
+
+  function getQtyFromLines(lines){
+    if (!Array.isArray(lines) || !lines.length) return 1;
+    const q = Math.max(...lines.map(L => Number(L.qty)||0));
+    return q>0? q : 1;
+  }
+  function applyRounding(val, mode){
+    const num = Number(val)||0;
+    if (mode==='none') return num;
+    const pounds = Math.floor(num);
+    const pence = Number(mode);
+    return pounds + pence;
+  }
+  function buildDefaultTags(desc, category){
+    const base = (desc||'').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    const uniq = Array.from(new Set([category, ...base])).filter(Boolean).slice(0,13);
+    return uniq.join(', ');
+  }
+  function buildDescription(q){
+    const cur = q.currency || cfg.currency || 'GBP';
+    const lines = (q.lines||[]).map(L=>`• ${L.label}: ${L.qty} × ${nf(L.unit,cur)} = ${nf(L.cost,cur)}`).join('\n');
+    const t=q.totals;
+    const parts = [
+      q.description || '(No title provided)',
+      '',
+      'Breakdown:',
+      lines || '• (no lines)',
+      '',
+      `Subtotal: ${nf(t.subtotal,cur)}`,
+      t.fees ? `Platform Fees: ${nf(t.fees,cur)}` : null,
+      t.postage ? `Postage: ${nf(t.postage,cur)}` : null,
+      t.margin ? `Margin: ${nf(t.margin,cur)}` : null,
+      t.flat ? `Machine/Tools: ${nf(t.flat,cur)}` : null,
+      `TOTAL: ${nf(t.grand,cur)}`,
+      '',
+      (window.lastQuote?.notes ? `Notes: ${window.lastQuote.notes}` : null),
+      (cfg.payment_terms ? `\nTerms: ${cfg.payment_terms}` : null),
+      [cfg.company_name,cfg.company_email,cfg.company_phone,cfg.company_address].filter(Boolean).join(' | ')
+    ].filter(Boolean);
+    return parts.join('\n');
+  }
+  function refreshFromQuote(){
+    const q = window.lastQuote || {
+      category: 'Listing',
+      description: '',
+      currency: cfg.currency,
+      lines: [],
+      totals: {subtotal:0,fees:0,postage:0,margin:0,flat:0,grand:0},
+      notes:''
+    };
+    id('lst-title').value = q.description || `${q.category||'Item'} — Custom`;
+    const qty = getQtyFromLines(q.lines);
+    id('lst-qty').value = qty;
+    const mode = id('lst-pr-mode').value;
+    let price = 0;
+    if (mode==='total') price = Number(q.totals?.grand)||0;
+    else if (mode==='unit') price = qty ? (Number(q.totals?.grand)||0)/qty : 0;
+    else price = Number(id('lst-price').value)||0;
+    price = applyRounding(price, id('lst-round').value);
+    id('lst-price').value = price.toFixed(2);
+    if (!id('lst-tags').value) id('lst-tags').value = buildDefaultTags(q.description, q.category);
+    id('lst-desc').value = buildDescription(q);
+  }
+  id('lst-refresh').onclick = refreshFromQuote;
+  id('lst-pr-mode').onchange = refreshFromQuote;
+  id('lst-round').onchange = refreshFromQuote;
+  id('lst-copy-title').onclick = ()=>navigator.clipboard.writeText(id('lst-title').value).then(()=>alert('Title copied'));
+  id('lst-copy-desc').onclick = ()=>navigator.clipboard.writeText(id('lst-desc').value).then(()=>alert('Description copied'));
+  id('lst-copy-all').onclick = ()=>{
+    const all = [
+      `TITLE: ${id('lst-title').value}`,
+      `PRICE: ${id('lst-price').value} ${cfg.currency||'GBP'}`,
+      `QTY: ${id('lst-qty').value}`,
+      id('lst-sku').value ? `SKU: ${id('lst-sku').value}` : null,
+      id('lst-tags').value ? `TAGS: ${id('lst-tags').value}` : null,
+      '',
+      'DESCRIPTION:',
+      id('lst-desc').value
+    ].filter(Boolean).join('\n');
+    navigator.clipboard.writeText(all).then(()=>alert('Full listing copied'));
+  };
+  listingBuilt=true;
+}
+function refreshListingFromQuote(){ if (listingBuilt) { document.getElementById('lst-refresh').click(); } }
 
 /* ---------- Load tab from URL hash (optional) ---------- */
 if (location.hash && panels[location.hash.slice(1)]) {
